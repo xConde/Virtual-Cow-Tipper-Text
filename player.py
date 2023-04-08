@@ -1,3 +1,5 @@
+import random
+from item import Weapon, Shield, Tool, CowBell, Bucket, roll_weapon_dmg
 
 class Player:
     def __init__(self, name, starting_hp=20, starting_cash=50):
@@ -34,6 +36,11 @@ class Player:
         if self.hp <= 0:
             self.die()
 
+    def deal_damage(self):
+        base_damage = 3 * (self.cash // 25)
+        weapon_damage = roll_weapon_dmg(self.weapon) 
+        return base_damage + weapon_damage
+
     def die(self):
         print(f"{self.name} has died.")
         # Logic for handling player death, such as resetting stats, can be added here.
@@ -53,18 +60,18 @@ class Player:
             print(f"{self.name} sold {item.name} for ${value}. Current cash: ${self.cash}")
         else:
             print(f"{self.name} does not have {item.name} in their inventory to sell.")
-    
-    def update_inventory(self, item, action):
-        if action == "add":
-            if len(self.inventory) < 4:
-                self.inventory.append(item)
-                print(f"{self.name} added {item.name} to their inventory.")
-            else:
-                print(f"{self.name}'s inventory is full. {item.name} could not be added.")
-        elif action == "remove":
-            self.inventory.remove(item)
-            print(f"{self.name} dropped {item.name} from their inventory.")
 
+    def add_item_to_inventory(self, item):
+        if len(self.inventory) < 4:
+            self.inventory.append(item)
+            print(f"{self.name} added {item.name} to their inventory.")
+        else:
+            print(f"{self.name}'s inventory is full. {item.name} could not be added.")
+
+    def remove_item_from_inventory(self, item):
+        self.inventory.remove(item)
+        print(f"{self.name} dropped {item.name} from their inventory.")
+    
     def check_inventory(self):
         items = ', '.join(item.name for item in self.inventory) if self.inventory else "empty"
         print(f"{self.name}'s inventory: {items}")
@@ -78,39 +85,3 @@ class Player:
                 print(f"{self.name} cannot use {item.name}.")
         else:
             print(f"{self.name} does not have {item.name} in their inventory.")
-
-    def interact_with_cow(self, chosen_cow):
-        combat_chance = self.calculate_combat_chance(chosen_cow)
-        dairy_chance = self.calculate_dairy_chance()
-
-        action_roll = random.randint(1, 100)
-
-        if action_roll <= combat_chance:
-            self.handle_combat(chosen_cow)
-        elif action_roll <= combat_chance + dairy_chance:
-            self.handle_dairy(chosen_cow)
-        else:
-            self.handle_tip_or_leave(chosen_cow)
-
-    def calculate_combat_chance(self, chosen_cow):
-        base_chance = 15
-        scaling_factor = (35 - base_chance) / 9
-        combat_chance = base_chance + scaling_factor * (10 - chosen_cow.likeliness)
-        return combat_chance
-
-    def calculate_dairy_chance(self):
-        cow_bell = any(isinstance(item, CowBell) for item in self.inventory)
-        return 5 if not cow_bell else 15
-
-    def handle_combat(self, chosen_cow):
-        # Handle combat interaction with chosen_cow
-        pass
-
-    def handle_dairy(self, chosen_cow):
-        has_bucket = any(isinstance(item, Bucket) for item in self.inventory)
-        print(chosen_cow.get_dairy_response(has_bucket))
-
-    def handle_tip_or_leave(self, chosen_cow):
-        # Handle tipping or leaving interaction with chosen_cow
-        pass
-

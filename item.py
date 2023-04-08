@@ -24,10 +24,36 @@ class Tool(Item):
         super().__init__(name, 'tool')
         self.action = action
 
+class CowBell(Tool):
+    def __init__(self):
+        super().__init__("Cow Bell", None)
+
+    def get_dairy_bonus(self):
+        return 15
+
+class Bucket(Tool):
+    def __init__(self):
+        super().__init__("Bucket", None)
+
+    def use(self):
+        return LiquidGold()
+
 class Object(Item):
     def __init__(self, name, description):
         super().__init__(name, 'object')
         self.description = description
+
+class LiquidGold(Object):
+    def __init__(self):
+        super().__init__("Liquid Gold", "A valuable substance that can be sold at the shop.")
+
+    def get_value(self, player):
+        weapon = player.weapon
+        if weapon:
+            weapon_dps = (weapon.min_damage + weapon.max_damage) / 2
+        else:
+            weapon_dps = 0
+        return 150 + 5 * weapon_dps + 10 * (player.cash // 50)
 
 def random_weapon_roll(less_likely=False):
     weapons = [
@@ -56,10 +82,18 @@ def random_shield_roll(less_likely=False):
     rarity = scale
     return Shield(shield['name'], shield['min_def'], max_defense, rarity)
 
+def random_tool_roll():
+    tools = [CowBell(), Bucket()]
+    return random.choice(tools)
+
+def random_object_roll():
+    objects = [LiquidGold()]
+    return random.choice(objects)
+
 def random_item_roll():
     item_type = random.choices(
         ['weapon', 'shield', 'tool', 'object'],
-        weights=[35, 35, 10, 20]
+        weights=[50, 34, 15, 1]
     )[0]
     if item_type == 'weapon':
         return random_weapon_roll(less_likely=true)
@@ -70,3 +104,10 @@ def random_item_roll():
     else:
         return random_object_roll()
 
+def roll_weapon_dmg(weapon) -> int:
+    if not weapon:
+        return 0
+
+    min_dmg = weapon.min_dmg + int(weapon.min_dmg * weapon.scale * 0.1)
+    max_dmg = weapon.max_dmg + int(weapon.max_dmg * weapon.scale * 0.15)
+    return random.randint(min_dmg, max_dmg)
