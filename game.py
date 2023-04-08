@@ -1,49 +1,59 @@
 from cow import Cow
 from player import Player
 from item import Item
-from context import cow_sayings, approaches, interruptions
-
+from assets.context import cow_sayings, approaches, interruptions
+from cow_interaction import CowInteraction
 import random
 
 class VirtualCowTipper:
-    def __init__(self):
-        player_name = input("Enter your name: ")
+    def __init__(self, player_name):
         self.player = Player(player_name)
-        self.cows = []
-        self.pack_membership = {}
-        self.generate_cows()
+        self.cows = [self.generate_cow() for _ in range(3)]
+        self.cow_packs = {pack: 0 for pack in range(1, 7)}
         self.running = True
 
     def start(self):
-        print("Welcome to Virtual Cow Tipper!")
+        print("\nVirtual Cow Tipper!")
 
         while self.running:
             self.player_turn()
             self.check_end_conditions()
 
-    def generate_cows(self):
-        total_cows = 30
-        pack_size = 6
+    def generate_cow(self)-> Cow:
+        cow_properties = Cow.generate_random_cow_properties(self.player)
+        return Cow(
+            cow_properties['name'],
+            cow_properties['req_amount'],
+            cow_properties['likeliness'],
+            cow_properties['strength'],
+            cow_properties['hp'],
+            cow_properties['is_shop'],
+            cow_properties['is_aggro'],
+            cow_properties['pack']
+        )
 
-        for i in range(total_cows):
-            cow_properties = Cow.generate_random_cow_properties()
-            cow = Cow(cow_properties["name"], cow_properties["mood"], cow_properties["req_amount"])
-            pack_num = i // pack_size
-            self.cows.append(cow)
-            self.pack_membership[cow] = pack_num
+    def spawn_cow(self) -> Cow:
+        cow = self.cows.pop(0)
+        pack_score = self.cow_packs[cow.pack]
+        cow.likeliness += pack_score
+        self.cows.append(self.generate_cow())
+        return cow
+
+    def update_cow_pack_score(self, cow: Cow, score: float):
+        self.cow_packs[cow.pack] += score
 
     def player_turn(self):
         self.player.display_info()
         self.get_approach()
         is_interrupted = self.get_interruption()
-        chosen_cow = random.choices(self.cows)
+        spawned_cow = self.spawn_cow()
 
         if is_interrupted:
-            self.player.interact_with_cow(chosen_cow)
+            CowInteraction(self.player, spawned_cow).interact()
             return
 
         actions = {
-            "approach the cow": self.player.interact_with_cow,
+            "approach the cow": lambda: CowInteraction(self.player, spawned_cow).interact(),
             "check inventory": self.player.check_inventory,
             "use an item from inventory": self.player.use_item,
             "quit game": lambda: setattr(self, "running", False),
@@ -58,7 +68,7 @@ class VirtualCowTipper:
                 action_idx = int(choice) - 1
                 action_name = list(actions.keys())[action_idx]
                 try:
-                    actions[action_name](chosen_cow)
+                    actions[action_name](spawned_cow)
                 except TypeError:
                     actions[action_name]()
                 return
