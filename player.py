@@ -10,10 +10,11 @@ class Player:
         self.weapon = None
         self.shield = None
 
-    def display_info(self):
-        print(f"Name: {self.name}\nHP: {self.hp}\nCash: ${self.cash}")
-        print(f"{'Equipped Weapon:' + self.weapon.name if self.weapon else 'No weapon equipped.'}")
-        print(f"{'Equipped Shield:' + self.shield.name if self.shield else 'No shield equipped.'}\n")
+    def display_info(self, combat=True):
+        print(f"Name: {self.name}     HP: {self.hp}\tCash: ${self.cash}")
+        if combat:
+            print(f"Weapon: {self.weapon.name} L:{self.weapon.min_damage} H:{self.weapon.max_damage}" if self.weapon else "Weapon: None")
+            print(f"Shield: {self.shield.name} L:{self.shield.min_defense} H:{self.shield.max_defense}" if self.shield else "Shield: None")
 
     def equip(self, item):
         if isinstance(item, Weapon):
@@ -74,7 +75,7 @@ class Player:
     
     def check_inventory(self):
         items = ', '.join(item.name for item in self.inventory) if self.inventory else "empty"
-        print(f"{self.name}'s inventory: {items}")
+        print(f"{self.name}'s inventory: {items}\n")
 
     def use_item(self, item):
         if item in self.inventory:
