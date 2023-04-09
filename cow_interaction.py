@@ -93,7 +93,7 @@ class CowInteraction():
                 try:
                     tip_amount = float(input("How much do you want to tip the cow? "))
                     if (tip_amount <= 0):
-                        print("You decided not to tip the cow.")
+                        print("You decided not to tip the cow.\n")
                         attempts = -1
                     else:
                         tip_amount = float(tip_amount)
@@ -102,23 +102,23 @@ class CowInteraction():
 
                     if tip_amount >= self.cow.req_amount:
                         score = (2 if attempts == 2 else 1) * (2 if tip_amount > 20 else 1)
-                        self.game_instance.update_cow_scores(self.cow, score)
                         self.cow.likeliness += score
-                        print(self.cow.print_response(self.cow.name, 'graceful'))
+                        self.game_instance.update_cow_scores(self.cow, score)
+                        self.cow.print_response(self.cow.name, 'graceful')
                         return
                     else:
                         attempts -= 1
                         if (attempts == 0):
-                            self.game_instance.update_cow_scores(self.cow, -1)
                             self.cow.likeliness -= 1
+                            self.game_instance.update_cow_scores(self.cow, -1)
                         tip_amount = float(tip_amount)
                         self.player.cash -= tip_amount
-                        print(f'The cow is disappointed with your tip. You have ${int(self.player.cash)} left.')
+                        print(f'The cow is disappointed with your tip. You have ${int(self.player.cash)} left.\n')
                         self.cow.print_response(self.cow.name, 'counter')
                 except ValueError:
-                    print("Please enter a number.")
+                    print("Please enter a number.\n")
             elif choice == "2":
-                print("You decided to run away from the cow.")
+                print("You decided to run away from the cow.\n")
                 self.game_instance.update_cow_scores(self.cow, -2)
                 return
             else:

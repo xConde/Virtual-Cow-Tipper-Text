@@ -54,4 +54,4 @@ class Cow:
         return random.choice(cow_sayings[self.mood][response_type])
 
     def print_response(self, cow_name, response_type):
-        print(f"\n{cow_name}: {self.get_response(response_type)}\n")
+        print(f"{cow_name}: {self.get_response(response_type)}\n")

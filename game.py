@@ -66,6 +66,7 @@ class VirtualCowTipper:
             choice = input("Choose an action (1-4): ")
             if choice.isdigit() and int(choice) in range(1, 5):
                 action_idx = int(choice) - 1
+                print('')
                 action_name = list(actions.keys())[action_idx]
                 try:
                     actions[action_name](spawned_cow)
