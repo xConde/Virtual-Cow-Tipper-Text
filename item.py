@@ -55,6 +55,63 @@ class LiquidGold(Object):
             weapon_dps = 0
         return 150 + 5 * weapon_dps + 10 * (player.cash // 50)
 
+WEAPON_TYPES = [
+    {'name': 'dagger', 'min_dmg': 1, 'max_dmg': 4},
+    {'name': 'club', 'min_dmg': 2, 'max_dmg': 6},
+    {'name': 'short bow', 'min_dmg': 3, 'max_dmg': 8},
+    {'name': 'mace', 'min_dmg': 4, 'max_dmg': 10},
+    {'name': 'longbow', 'min_dmg': 5, 'max_dmg': 12},
+    {'name': 'battleaxe', 'min_dmg': 6, 'max_dmg': 14},
+    {'name': 'flail', 'min_dmg': 7, 'max_dmg': 16},
+    {'name': 'halberd', 'min_dmg': 8, 'max_dmg': 18},
+    {'name': 'greatsword', 'min_dmg': 9, 'max_dmg': 20},
+    {'name': 'godsword', 'min_dmg': 10, 'max_dmg': 22}
+]
+
+SHIELD_TYPES = [
+    {'name': 'buckler', 'min_def': 1, 'max_def': 4},
+    {'name': 'targe', 'min_def': 2, 'max_def': 6},
+    {'name': 'round shield', 'min_def': 3, 'max_def': 8},
+    {'name': 'heater shield', 'min_def': 4, 'max_def': 10},
+    {'name': 'kite shield', 'min_def': 5, 'max_def': 12},
+    {'name': 'tower shield', 'min_def': 6, 'max_def': 14},
+    {'name': 'pavise', 'min_def': 7, 'max_def': 16},
+    {'name': 'spiked shield', 'min_def': 8, 'max_def': 18},
+    {'name': 'barrier shield', 'min_def': 9, 'max_def': 20},
+    {'name': 'aegis', 'min_def': 10, 'max_def': 22}
+]
+
+rarity_adjectives = {
+    'common': {
+        'prefix': ['Plain', 'Simple', 'Basic'],
+        'suffix': ['']
+    },
+    'uncommon': {
+        'prefix': ['Sturdy', 'Polished', 'Reinforced'],
+        'suffix': ['of Quality', 'of Precision']
+    },
+    'magic': {
+        'prefix': ['Enchanted', 'Mystic', 'Arcane'],
+        'suffix': ['of Power', 'of Sorcery']
+    },
+    'rare': {
+        'prefix': ['Ancient', 'Exquisite', 'Ethereal'],
+        'suffix': ['of Legends', 'of the Ancients']
+    },
+    'lengendairy': {
+        'prefix': ['Mythic', 'Astral', 'Ethereal'],
+        'suffix': ['of the Ancients', 'of Eons']
+    }
+}
+
+def get_modified_name(base_name, rarity, item_type):
+    if item_type not in ['weapon', 'shield']:
+        raise ValueError("Invalid item_type: must be 'weapon' or 'shield'")
+
+    prefix_or_suffix = random.choice(['prefix', 'suffix'])
+    adjective = random.choice(RARITY_ADJECTIVES[rarity][prefix_or_suffix])
+    return f'{adjective} {base_name}'.strip() if prefix_or_suffix == 'prefix' else f'{base_name} {adjective}'.strip()
+
 def random_weapon_roll(less_likely=False):
     weapons = [
         {'name': 'dagger', 'min_dmg': 1, 'max_dmg': 10, 'max_scale': 3},
@@ -96,9 +153,9 @@ def random_item_roll():
         weights=[50, 34, 15, 1]
     )[0]
     if item_type == 'weapon':
-        return random_weapon_roll(less_likely=true)
+        return random_weapon_roll(less_likely=True)
     elif item_type == 'shield':
-        return random_shield_roll(less_likely=true)
+        return random_shield_roll(less_likely=True)
     elif item_type == 'tool':
         return random_tool_roll()
     else:
