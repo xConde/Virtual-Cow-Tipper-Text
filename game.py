@@ -29,6 +29,7 @@ class VirtualCowTipper:
             cow_properties['hp'],
             cow_properties['is_shop'],
             cow_properties['is_aggro'],
+            cow_properties['is_dairy'],
             cow_properties['pack']
         )
 
@@ -39,29 +40,28 @@ class VirtualCowTipper:
         self.cows.append(self.generate_cow())
         return cow
 
-    def update_cow_pack_score(self, cow: Cow, score: float):
+    def update_cow_scores(self, cow: Cow, score: float):
         self.cow_packs[cow.pack] += score
+        for cow in self.cows:
+            self.cows[self.cows.index(cow)].likeliness += score
 
     def player_turn(self):
-        self.player.display_info()
         self.get_approach()
         is_interrupted = self.get_interruption()
         spawned_cow = self.spawn_cow()
 
         if is_interrupted:
-            CowInteraction(self.player, spawned_cow).interact()
+            CowInteraction(self, self.player, spawned_cow).interact()
             return
 
         actions = {
-            "approach the cow": lambda: CowInteraction(self.player, spawned_cow).interact(),
-            "check inventory": self.player.check_inventory,
+            "approach the cow": lambda: CowInteraction(self, self.player, spawned_cow).interact(),
+            "check inventory": lambda: self.player.check_inventory(),
             "use an item from inventory": self.player.use_item,
             "quit game": lambda: setattr(self, "running", False),
         }
         while True:
-            print("Actions:")
-            for i, action in enumerate(actions.keys()):
-                print(f"{i+1}. {action.capitalize()}")
+            print(*[f"{i+1}. {action.capitalize()}" for i, action in enumerate(actions.keys())], sep=" | ")
 
             choice = input("Choose an action (1-4): ")
             if choice.isdigit() and int(choice) in range(1, 5):
@@ -80,11 +80,9 @@ class VirtualCowTipper:
         print(f"\n{random.choice(approaches)}\n")
     
     def get_interruption(self):
-        is_interrupted = random.randint(1, 100) <= 10
-        print(f"\n{random.choice(interruptions)}\n") if is_interrupted else None
-        return is_interrupted
+        return (lambda m: (print(f"\n{m}\n"), m)[1] if random.random() < 0.1 else False)(random.choice(interruptions))
 
     def check_end_conditions(self):
         if self.player.hp <= 0 or self.player.cash <= 0:
-            print("Game Over!")
+            self.player.die()
             self.running = False
