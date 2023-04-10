@@ -29,7 +29,6 @@ class VirtualCowTipper:
             cow_properties['hp'],
             cow_properties['is_shop'],
             cow_properties['is_aggro'],
-            cow_properties['is_dairy'],
             cow_properties['pack']
         )
 

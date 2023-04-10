@@ -2,7 +2,7 @@ import random
 from assets.context import cow_sayings, cow_names
 
 class Cow:
-    def __init__(self, name, req_amount, likeliness, strength, hp, is_shop, is_aggro, is_dairy, pack):
+    def __init__(self, name, req_amount, likeliness, strength, hp, is_shop, is_aggro, pack):
         self.name = name
         self.req_amount = req_amount
         self.likeliness = likeliness
@@ -10,7 +10,6 @@ class Cow:
         self.hp = hp
         self.is_shop = is_shop
         self.is_aggro = is_aggro
-        self.is_dairy = is_dairy
         self.pack = pack
         self.mood = self.set_mood(self.likeliness)
 
@@ -18,7 +17,6 @@ class Cow:
     def generate_random_cow_properties(player):
         is_aggro = random.randint(0, 99) < 15 + int(player.cash / 20)
         is_shop = random.randint(0, 99) < 15 if not is_aggro else False
-        is_dairy = random.randint(0, 99) < 10 if not is_aggro and not is_shop else False
         max_strength = max(int(player.hp * 0.25), player.cash // 20)
         strength = random.randint(3, max_strength) if 3 < max_strength else 3
         likeliness = Cow.set_random_likeliness()
@@ -31,7 +29,6 @@ class Cow:
             "hp": max(10, strength * random.randint(1, 2) * (2 if likeliness < 5 else 1)),
             "is_shop": is_shop,
             "is_aggro": is_aggro,
-            "is_dairy": is_dairy,
             "pack": random.randint(1, 6)
         }
 
