@@ -11,7 +11,7 @@ class Player:
         self.shield = None
 
     def display_info(self, combat=True):
-        print(f"{self.name}:\tHP: {self.hp}\tCash: ${self.cash}")
+        print(f"{self.name} | HP: {self.hp} | Cash: ${self.cash}")
         if combat:
             print(f"Weapon: {self.weapon.name} L:{self.weapon.min_damage} H:{self.weapon.max_damage}" if self.weapon else "Weapon: None")
             print(f"Shield: {self.shield.name} L:{self.shield.min_defense} H:{self.shield.max_defense}" if self.shield else "Shield: None")
