@@ -1,5 +1,5 @@
 import random
-from item import CowBell, random_item_roll
+from item import CowBell, random_item_roll, get_shop_items
 
 class CowInteraction():
     def __init__(self, game_instance, player, cow):
@@ -69,10 +69,19 @@ class CowInteraction():
     def handle_shop(self):
         print(f'You enter a shop run by a cow named {self.cow.name} who is currently {self.cow.mood}.')
         self.cow.print_response(self.cow.name, 'shop_keeper_intro')
+        isLucky = random.randint(0, 99) < (40 if self.cow.mood == 'upset' else 25)
+        if (self.cow.mood == 'friendly' and isLucky):
+            print(f"The shop owner is very welcoming and shows you all the items in their shop with a smile.")
+        elif (self.cow.mood == 'upset' and isLucky):
+            print(f"{self.cow.name} grudgingly charges extra, but you're feeling lucky.")
         while True:
             print("Items available:")
-            available_items = [random_item_roll() for _ in range(3)]
-            item_strings = [f"{i + 1}. {item.name} - ${i * 10 + 10}" for i, item in enumerate(available_items)]
+            available_items = get_shop_items(self.cow.mood, self.player.cash, isLucky)
+            item_strings = []
+            for i, item in enumerate(available_items):
+                item_name = item['label'] if self.cow.mood != 'friendly' else item['item'].name
+                price = item["price"]
+                item_strings.append(f"{i + 1}. {item_name} - ${price}")
             print(" | ".join(item_strings) + " | 4. Leave the shop")
 
             choice = input("Choose an action (1-4): ")
@@ -83,10 +92,16 @@ class CowInteraction():
                     return
 
                 item_choice = available_items[choice - 1]
-                if self.player.cash >= item_choice.price:
-                    self.player.cash -= item_choice.price
-                    self.player.inventory.append(item_choice)
+                item_price = item_choice['price']
+                if self.player.cash >= item_price:
+                    self.player.cash -= item_price
+                    self.player.inventory.append(item_choice['item'])
                     self.cow.print_response(self.cow.name, 'shop_keeper_purchase')
+                    if item_choice['item'].type == 'combat':
+                        print(f"You purchased a {item_choice['item'].stats()} for ${item_price}.")
+                    else:
+                        print(f"You purchased {item_choice['item'].name} for ${item_price}.")
+                    print(f"Remaining cash: ${self.player.cash}\n")
                 else:
                     print("You don't have enough cash for that item.\n")
             else:
