@@ -1,5 +1,60 @@
 import random
-from item import CowBell, random_item_roll, get_shop_items
+from item import CowBell, Bucket, random_item_roll, get_shop_items
+
+
+class CowAttack:
+    def __init__(self, name, damage=None, effect=None, duration=None, healing=None, accuracy=100):
+        self.name = name
+        self.damage = damage
+        self.effect = effect
+        self.duration = duration
+        self.healing = healing
+        self.accuracy = accuracy
+
+    @classmethod
+    def generate_cow_combat_styles(cls, cow_strength):
+        return [
+            cls("headbutt", damage=random.randint(3, 2 + cow_strength), accuracy=85),
+            cls("hoof kick", damage=random.randint(5, 4 + cow_strength), accuracy=60),
+            cls("tail whip", damage=random.randint(1, 1 + cow_strength // 2), accuracy=95),
+
+            cls("stunning bellow", effect="stun", duration=1, accuracy=75),
+            cls("paralyzing stare", effect="stun", duration=random.randint(1, 3), accuracy=60),
+            cls("milk rejuvenation", effect="heal", healing=random.randint(3, 3 + int(cow_strength * 0.5)), accuracy=100),
+            cls("power-up snort", effect="power_up", accuracy=100),
+
+            cls("moo of doom", damage=random.randint(4, 4 + int(cow_strength * 1.5)), accuracy=65),
+            cls("haymaker", damage=random.randint(6, 5 + int(cow_strength * 1.7)), accuracy=75),
+            cls("bull rush", damage=random.randint(5, 5 + int(cow_strength * 2)), accuracy=80),
+        ]
+
+    @classmethod
+    def cow_attack(cls, player, cow):
+        cow_combat_styles = cls.generate_cow_combat_styles(cow.strength)
+        attack_weights = [25, 15, 18, 9, 9, 9, 9, 3, 2, 1]
+        chosen_attack = random.choices(cow_combat_styles, weights=attack_weights, k=1)[0]
+        print(f"{cow.name} uses {chosen_attack.name}!")
+
+        hit_chance = random.randint(0, 100)
+        if hit_chance <= chosen_attack.accuracy:
+            if chosen_attack.damage:
+                player.hp -= chosen_attack.damage
+                print(f"{cow.name} dealt {chosen_attack.damage} damage to {player.name}!")
+
+            if chosen_attack.effect:
+                if chosen_attack.effect == "stun":
+                    print(f"{player.name} is stunned for {chosen_attack.duration} turns!")
+                    # Add logic to handle stun effect for the player
+                elif chosen_attack.effect == "heal":
+                    print(f"{cow.name} heals for {chosen_attack.healing} HP!")
+                    cow.hp += chosen_attack.healing
+                    # Cap the cow's HP to its maximum HP
+                    cow.hp = min(cow.hp, cow.max_hp)
+                elif chosen_attack.effect == "power_up":
+                    print(f"{cow.name} powers up")
+        else:
+            print(f"{cow.name}'s attack misses {player.name}!")
+
 
 class CowInteraction():
     def __init__(self, game_instance, player, cow):
@@ -21,12 +76,6 @@ class CowInteraction():
         self.game_instance.player.display_info(combat=self.cow.is_aggro)
         handler()
 
-    def calculate_combat_chance(self):
-        base_chance = 15
-        scaling_factor = (35 - base_chance) / 9
-        combat_chance = base_chance + scaling_factor * (10 - self.cow.likeliness)
-        return combat_chance
-
     def calculate_dairy_chance(self):
         cow_bell = self.get_cow_bell()
         dairy_encounter_chance = 5 if not cow_bell else 15
@@ -42,30 +91,50 @@ class CowInteraction():
                 print('You hear a dairy cow mooing in the distance.')
         return is_dairy
 
+    def handle_dairy(self):
+        bucket = self.get_bucket()
+        if bucket:
+            liquid_gold = bucket.use()
+            self.player.update_inventory(liquid_gold, "add")
+            self.player.update_inventory(bucket, "remove")
+            print(f"You milk {self.cow.name} with your bucket and obtain liquid gold.")
+            self.cow.print_response(self.cow.name, 'dairy_bucket')
+        else:
+            print(f"You encounter a dairy cow named {self.cow.name}, but you don't have a bucket to milk it.")
+            self.cow.print_response(self.cow.name, 'dairy_no_bucket')
+
     def handle_combat(self):
         print(f"A combat with '{self.cow.name}' has started!")
 
+        cow_strength = self.cow.strength
+
         while self.player.hp > 0 and self.cow.hp > 0:
-            player_damage = self.player.deal_damage()
-            cow_hp = self.cow.hp
-            self.cow.hp -= player_damage
-            print(f"You dealt {player_damage if player_damage <= self.cow.hp else cow_hp} damage to the cow. The cow has {self.cow.hp if self.cow.hp > 0 else 0} HP left.")
+            print("\n1. Attack | 2. Check inventory | 3. Use an item from inventory | 4. Flee")
+            choice = input("Choose an action (1-4): ")
 
-            if self.cow.hp <= 0:
-                print("You have defeated the cow.")
-                break
-            
-            hit_prob = 40 + self.cow.likeliness * random.randint(1, 2) * (2 if self.cow.mood == 'upset' else 1)
-            hit_player = random.random() < hit_prob / 100
-            if hit_player:
-                self.player.hp -= self.cow.strength
-                print(f"The cow hit you for {self.cow.strength} damage. You have {self.player.hp} HP left.")
+            if choice.isdigit() and int(choice) in range(1, 5):
+                choice = int(choice)
+                if choice == 1:
+                    self.player.deal_damage(self.cow)
+                    if self.cow.hp <= 0:
+                        print(f"You defeat {self.cow.name}.")
+                        self.cow.print_response(self.cow.name, 'enraged_end')
+                        print(f"You gain ${self.cow.cash}.")
+                        self.player.cash += self.cow.cash
+                        break
+                elif choice == 2:
+                    check_inventory(self.player)
+                elif choice == 3:
+                    use_item(self.player)
+                elif choice == 4:
+                    print("You flee from the combat.")
+                    break
             else:
-                print("The cow missed its attack.")
-
-        if self.player.hp <= 0:
-            print("You have been defeated by the cow.")
-
+                print("Invalid choice. Please enter a number between 1 and 4.")
+            
+            if self.cow.hp > 0:
+                CowAttack.cow_attack(self.player, self.cow)
+                
     def handle_shop(self):
         print(f'You enter a shop run by a cow named {self.cow.name} who is currently {self.cow.mood}.')
         self.cow.print_response(self.cow.name, 'shop_keeper_intro')
@@ -95,9 +164,9 @@ class CowInteraction():
                 item_price = item_choice['price']
                 if self.player.cash >= item_price:
                     self.player.cash -= item_price
-                    self.player.inventory.append(item_choice['item'])
+                    self.player.add_item_to_inventory(item_choice['item'])
                     self.cow.print_response(self.cow.name, 'shop_keeper_purchase')
-                    if item_choice['item'].type == 'combat':
+                    if item_choice['item'].type in ['weapon', 'shield']:
                         print(f"You purchased a {item_choice['item'].stats()} for ${item_price}.")
                     else:
                         print(f"You purchased {item_choice['item'].name} for ${item_price}.")
@@ -106,30 +175,6 @@ class CowInteraction():
                     print("You don't have enough cash for that item.\n")
             else:
                 print("Invalid choice. Please enter a number between 1 and 4.")
-
-    def handle_dairy(self):
-        bucket = self.get_bucket()
-        if bucket:
-            liquid_gold = bucket.use()
-            self.player.update_inventory(liquid_gold, "add")
-            self.player.update_inventory(bucket, "remove")
-            print(f"You milk {self.cow.name} with your bucket and obtain liquid gold.")
-            self.cow.print_response(self.cow.name, 'dairy_bucket')
-        else:
-            print(f"You encounter a dairy cow named {self.cow.name}, but you don't have a bucket to milk it.")
-            self.cow.print_response(self.cow.name, 'dairy_no_bucket')
-
-    def get_cow_bell(self):
-        for item in self.player.inventory:
-            if isinstance(item, CowBell):
-                return item
-        return None
-
-    def get_bucket(self):
-        for item in self.player.inventory:
-            if isinstance(item, Bucket):
-                return item
-        return None
 
     def handle_tip_or_leave(self):
         print(f'You encounter a cow named {self.cow.name} who is currently {self.cow.mood}.')
@@ -179,3 +224,16 @@ class CowInteraction():
                 return
             else:
                 print("Please enter a number between 1 and 2.")
+
+    def get_cow_bell(self):
+        for item in self.player.inventory:
+            if isinstance(item, CowBell):
+                return item
+        return None
+
+    def get_bucket(self):
+        for item in self.player.inventory:
+            if isinstance(item, Bucket):
+                return item
+        return None
+
