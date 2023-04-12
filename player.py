@@ -13,8 +13,11 @@ class Player:
     def display_info(self, combat=True):
         print(f"{self.name} | HP: {self.hp} | Cash: ${self.cash}")
         if combat:
-            print(f"Weapon: {self.weapon.name} L:{self.weapon.min_damage} H:{self.weapon.max_damage}" if self.weapon else "Weapon: None")
-            print(f"Shield: {self.shield.name} L:{self.shield.min_defense} H:{self.shield.max_defense}" if self.shield else "Shield: None")
+            if not self.weapon and not self.shield:
+                print("Weapon: None | Shield: None")
+            else:
+                self.weapon.stats() if self.weapon else print("Weapon: None")
+                self.shield.stats() if self.shield else print("Shield: None")
 
     def equip(self, item):
         if isinstance(item, Weapon):
