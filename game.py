@@ -27,6 +27,7 @@ class VirtualCowTipper:
             cow_properties['likeliness'],
             cow_properties['strength'],
             cow_properties['hp'],
+            cow_properties['cash'],
             cow_properties['is_shop'],
             cow_properties['is_aggro'],
             cow_properties['pack']
