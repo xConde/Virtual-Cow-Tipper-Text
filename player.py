@@ -1,5 +1,6 @@
 import random
 from item import Weapon, Shield, Tool, CowBell, Bucket, roll_weapon_dmg
+from assets.context import small_damage_contexts, large_damage_contexts
 
 class Player:
     def __init__(self, name, starting_hp=20, starting_cash=50):
@@ -40,10 +41,32 @@ class Player:
         if self.hp <= 0:
             self.die()
 
-    def deal_damage(self):
+    def print_small_damage_context(self, cow_name, total_damage):
+        context = random.choice(small_damage_contexts)
+        context = context.format(player_name=self.name, cow_name=cow_name, total_damage=total_damage)
+        print(context)
+
+    def print_large_damage_context(self, cow_name, total_damage):
+        context = random.choice(large_damage_contexts)
+        context = context.format(player_name=self.name, cow_name=cow_name, total_damage=total_damage)
+        print(context)
+
+    def deal_damage(self, cow):
         base_damage = 3 * (self.cash // 25)
-        weapon_damage = roll_weapon_dmg(self.weapon) 
-        return base_damage + weapon_damage
+        weapon_damage = roll_weapon_dmg(self.weapon)
+        total_damage = base_damage + weapon_damage
+        total_damage = total_damage if cow.hp >= total_damage else cow.hp
+        cow.hp -= total_damage
+
+        print_small_hit_context = total_damage <= cow.hp * 0.2 and random.random() <= 0.66
+        print_large_hit_context = total_damage >= cow.hp * 0.5
+
+        if print_small_hit_context:
+            self.print_small_damage_context(cow.name, total_damage)
+        elif print_large_hit_context:
+            self.print_large_damage_context(cow.name, total_damage)
+        else:
+            print(f"{self.name} dealt {total_damage} damage to {cow.name}.")
 
     def die(self):
         print(f"{self.name} has died.")
@@ -66,11 +89,17 @@ class Player:
             print(f"{self.name} does not have {item.name} in their inventory to sell.")
 
     def add_item_to_inventory(self, item):
-        if len(self.inventory) < 4:
-            self.inventory.append(item)
-            print(f"{self.name} added {item.name} to their inventory.")
-        else:
+        if len(self.inventory) >= 8:
             print(f"{self.name}'s inventory is full. {item.name} could not be added.")
+            return
+
+        self.inventory.append(item)
+
+        if isinstance(item, (Weapon, Shield)) and item.is_upgrade(self, item):
+            print(f"{self.name} added {item.name} to their inventory and equipped it as their new {item.type}.")
+            self.equip(item)
+        else:
+            print(f"{self.name} added {item.name} to their inventory.")
 
     def remove_item_from_inventory(self, item):
         self.inventory.remove(item)
