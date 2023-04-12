@@ -2,12 +2,14 @@ import random
 from assets.context import cow_sayings, cow_names
 
 class Cow:
-    def __init__(self, name, req_amount, likeliness, strength, hp, is_shop, is_aggro, pack):
+    def __init__(self, name, req_amount, likeliness, strength, hp, cash, is_shop, is_aggro, pack):
         self.name = name
         self.req_amount = req_amount
         self.likeliness = likeliness
         self.strength = strength
         self.hp = hp
+        self.max_hp = hp
+        self.cash = cash
         self.is_shop = is_shop
         self.is_aggro = is_aggro
         self.pack = pack
@@ -15,18 +17,20 @@ class Cow:
 
     @staticmethod
     def generate_random_cow_properties(player):
-        is_aggro = random.randint(0, 99) < 15 + int(player.cash / 20)
-        is_shop = random.randint(0, 99) < 15 if not is_aggro else False
+        likeliness = Cow.set_random_likeliness()
         max_strength = max(int(player.hp * 0.25), player.cash // 20)
         strength = random.randint(3, max_strength) if 3 < max_strength else 3
-        likeliness = Cow.set_random_likeliness()
+        hp = max(10, strength * random.randint(1, 2) * (2 if likeliness < 5 else 1)) + random.randint(1, 3) * player.cash % 20
+        is_aggro = random.randint(0, 99) < 15 + int(player.cash / 20)
+        is_shop = random.randint(0, 99) < 15 if not is_aggro else False
 
         return {
             "name": random.choice(cow_names),
             "req_amount": (random.randint(1, 20) + player.cash % 50),
             "likeliness": likeliness,
             "strength": strength,
-            "hp": max(10, strength * random.randint(1, 2) * (2 if likeliness < 5 else 1)),
+            "hp": hp,
+            "cash": random.choices([random.randint(strength, hp), random.randint(strength, hp) * 2], weights=[0.40, 0.60])[0],
             "is_shop": is_shop,
             "is_aggro": is_aggro,
             "pack": random.randint(1, 6)
