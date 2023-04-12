@@ -491,6 +491,39 @@ interruptions = [
     "As you approach the cow, a nearby donkey brays loudly, startling you and causing you to trip and collide with the cow.",
 ]
 
+small_damage_contexts = [
+    "{player_name} barely tickles {cow_name} for {total_damage} damage.",
+    "{player_name} gives {cow_name} a light slap, dealing {total_damage} damage.",
+    "{player_name} pokes {cow_name} gently, causing {total_damage} damage.",
+    "{player_name} softly pats {cow_name}, inflicting {total_damage} damage.",
+    "{player_name} accidentally bumps into {cow_name}, dealing {total_damage} damage.",
+    "{player_name} accidentally kicks {cow_name}, causing {total_damage} damage.",
+    "{player_name} accidentally steps on {cow_name}'s tail, dealing {total_damage} damage.",
+    "{player_name} accidentally steps on {cow_name}'s udder, causing {total_damage} damage.",
+    "{player_name} delivers a love tap, dealing {total_damage} damage to the cow.",
+    "{player_name} accidentally steps on {cow_name}'s hoof, dealing {total_damage} damage.",
+    "{player_name} flicks the cow's nose, causing {total_damage} damage.",
+    "{player_name} gives the cow a friendly nudge, inflicting {total_damage} damage.",
+    "{player_name} hits {cow_name} with a small stick, dealing {total_damage} damage.",
+    "{player_name} hits {cow_name} with a small rock, causing {total_damage} damage.",
+    "{player_name} runs into {cow_name}, dealing {total_damage} damage.",
+    "{player_name} accidentally trips and falls into {cow_name}, dealing {total_damage} damage.",
+    "{player_name} elbows {cow_name} in the side, causing {total_damage} damage.",
+]
+
+large_damage_contexts = [
+    "{player_name} gives {cow_name} a good slap, dealing {total_damage} damage.",
+    "{player_name} pokes {cow_name} hard, causing {total_damage} damage.",
+    "{player_name} swings their weapon with unmatched ferocity, inflicting {total_damage} damage on the cow.",
+    "{player_name} delivers a powerful blow, dealing {total_damage} damage to the cow.",
+    "{player_name} charges at {cow_name} with full force, causing {total_damage} damage.",
+    "{player_name} quickly delivers a flurry of blows, dealing {total_damage} damage to the cow.",
+    "{player_name} viciously attacks {cow_name}, causing {total_damage} damage.",
+    "{player_name} throws a large rock at {cow_name}, dealing {total_damage} damage.",
+    "{player_name} slaps {cow_name} with a powerful blow, causing {total_damage} damage.",
+    "{player_name} slashes {cow_name} with a powerful blow, causing {total_damage} damage.",
+]
+
 ascii = {
     'shops': {
         'moo_mart': r"""
