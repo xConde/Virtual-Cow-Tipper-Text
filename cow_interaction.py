@@ -33,13 +33,12 @@ class CowAttack:
         cow_combat_styles = cls.generate_cow_combat_styles(cow.strength)
         attack_weights = [25, 15, 18, 9, 9, 9, 9, 3, 2, 1]
         chosen_attack = random.choices(cow_combat_styles, weights=attack_weights, k=1)[0]
-        print(f"{cow.name} uses {chosen_attack.name}!")
 
         hit_chance = random.randint(0, 100)
         if hit_chance <= chosen_attack.accuracy:
             if chosen_attack.damage:
                 player.hp -= chosen_attack.damage
-                print(f"{cow.name} dealt {chosen_attack.damage} damage to {player.name}!")
+                print(f"{cow.name} uses {chosen_attack.name} and deals {chosen_attack.damage} damage to {player.name}!")
 
             if chosen_attack.effect:
                 if chosen_attack.effect == "stun":
@@ -53,7 +52,7 @@ class CowAttack:
                 elif chosen_attack.effect == "power_up":
                     print(f"{cow.name} powers up")
         else:
-            print(f"{cow.name}'s attack misses {player.name}!")
+            print(f"{cow.name} uses {chosen_attack.name} but misses {player.name}!")
 
 
 class CowInteraction():
