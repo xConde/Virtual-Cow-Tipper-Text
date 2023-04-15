@@ -1,13 +1,14 @@
 from cow import Cow
 from player import Player
 from item import Item
-from assets.context import cow_sayings, approaches, interruptions
+from assets.context import interruptions
 from cow_interaction import CowInteraction
 import random
 
 class VirtualCowTipper:
     def __init__(self, player_name):
         self.player = Player(player_name)
+        self.cow = None
         self.cows = [self.generate_cow() for _ in range(3)]
         self.cow_packs = {pack: 0 for pack in range(1, 7)}
         self.running = True
@@ -30,32 +31,39 @@ class VirtualCowTipper:
             cow_properties['cash'],
             cow_properties['is_shop'],
             cow_properties['is_aggro'],
-            cow_properties['pack']
+            cow_properties['pack'],
+            cow_properties['approach']
         )
 
-    def spawn_cow(self) -> Cow:
-        cow = self.cows.pop(0)
-        pack_score = self.cow_packs[cow.pack]
-        cow.likeliness += pack_score
-        self.cows.append(self.generate_cow())
-        return cow
+    def spawn_cow(self):
+        if not self.cow:
+            cow = self.cows.pop(0)
+            pack_score = self.cow_packs[cow.pack]
+            cow.likeliness += pack_score
+            self.cow = cow
+            self.cows.append(self.generate_cow())
+
+    def destroy_cow(self):
+        self.cow = None
 
     def update_cow_scores(self, cow: Cow, score: float):
         self.cow_packs[cow.pack] += score
         for cow in self.cows:
             self.cows[self.cows.index(cow)].likeliness += score
+        self.destroy_cow()
 
     def player_turn(self):
-        self.get_approach()
-        is_interrupted = self.get_interruption()
-        spawned_cow = self.spawn_cow()
+        if not self.cow:
+            self.spawn_cow()
+        self.cow.get_approach()
 
+        is_interrupted = self.get_interruption()
         if is_interrupted:
-            CowInteraction(self, self.player, spawned_cow).interact()
+            CowInteraction(self, self.player, self.cow).interact()
             return
 
         actions = {
-            "approach the cow": lambda: CowInteraction(self, self.player, spawned_cow).interact(),
+            "approach the cow": lambda: CowInteraction(self, self.player, self.cow).interact(),
             "check inventory": lambda: self.player.check_inventory(),
             "use an item from inventory": self.player.use_item,
             "quit game": lambda: setattr(self, "running", False),
@@ -69,16 +77,12 @@ class VirtualCowTipper:
                 print('')
                 action_name = list(actions.keys())[action_idx]
                 try:
-                    actions[action_name](spawned_cow)
+                    actions[action_name](self.cow)
                 except TypeError:
                     actions[action_name]()
                 return
             else:
                 print("Invalid choice. Please enter a number between 1 and 4.")
-
-
-    def get_approach(self):
-        print(f"\n{random.choice(approaches)}\n")
     
     def get_interruption(self):
         return (lambda m: (print(f"\n{m}\n"), m)[1] if random.random() < 0.1 else False)(random.choice(interruptions))
