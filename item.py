@@ -7,12 +7,21 @@ class Item:
         self.item_type = item_type
 
 
+class Potion(Item):
+    def __init__(self, name, stat, boost_amount, duration=None):
+        super().__init__(name, 'potion')
+        self.stat = stat
+        self.boost_amount = boost_amount
+        self.duration = duration
+        self.type = 'potion'
+
 class Weapon(Item):
-    def __init__(self, name, min_damage, max_damage, rarity):
+    def __init__(self, name, min_damage, max_damage, rarity, scale):
         super().__init__(name, 'weapon')
         self.min_damage = min_damage
         self.max_damage = max_damage
         self.rarity = rarity
+        self.scale = scale
         self.type = 'weapon'
 
     def stats(self):
@@ -25,15 +34,16 @@ class Weapon(Item):
 
 
 class Shield(Item):
-    def __init__(self, name, min_defense, max_defense, rarity):
+    def __init__(self, name, min_defence, max_defence, rarity, scale):
         super().__init__(name, 'shield')
-        self.min_defense = min_defense
-        self.max_defense = max_defense
+        self.min_defence = min_defence
+        self.max_defence = max_defence
         self.rarity = rarity
+        self.scale = scale
         self.type = 'shield'
 
     def stats(self):
-        return f"{self.name} (L: {self.min_defense}, H: {self.max_defense}, Rarity: {self.rarity})"
+        return f"{self.name} (L: {self.min_defence}, H: {self.max_defence}, Rarity: {self.rarity})"
 
     def is_upgrade(self, player, item):
         if not player.shield or player.shield and find_median_stat(item) > find_median_stat(player.shield):
@@ -85,29 +95,29 @@ class LiquidGold(Object):
 
 
 WEAPON_TYPES = [
-    {'name': 'dagger', 'min_dmg': 1, 'max_dmg': 4},
-    {'name': 'club', 'min_dmg': 2, 'max_dmg': 6},
-    {'name': 'short bow', 'min_dmg': 3, 'max_dmg': 8},
-    {'name': 'mace', 'min_dmg': 4, 'max_dmg': 10},
-    {'name': 'longbow', 'min_dmg': 5, 'max_dmg': 12},
-    {'name': 'battleaxe', 'min_dmg': 6, 'max_dmg': 14},
-    {'name': 'flail', 'min_dmg': 7, 'max_dmg': 16},
-    {'name': 'halberd', 'min_dmg': 8, 'max_dmg': 18},
-    {'name': 'greatsword', 'min_dmg': 9, 'max_dmg': 20},
-    {'name': 'godsword', 'min_dmg': 10, 'max_dmg': 22}
+    {'name': 'dagger', 'min_damage': 1, 'max_damage': 4},
+    {'name': 'club', 'min_damage': 2, 'max_damage': 6},
+    {'name': 'short bow', 'min_damage': 3, 'max_damage': 8},
+    {'name': 'mace', 'min_damage': 4, 'max_damage': 10},
+    {'name': 'longbow', 'min_damage': 5, 'max_damage': 12},
+    {'name': 'battleaxe', 'min_damage': 6, 'max_damage': 14},
+    {'name': 'flail', 'min_damage': 7, 'max_damage': 16},
+    {'name': 'halberd', 'min_damage': 8, 'max_damage': 18},
+    {'name': 'greatsword', 'min_damage': 9, 'max_damage': 20},
+    {'name': 'godsword', 'min_damage': 10, 'max_damage': 22}
 ]
 
 SHIELD_TYPES = [
-    {'name': 'buckler', 'min_def': 1, 'max_def': 4},
-    {'name': 'targe', 'min_def': 2, 'max_def': 6},
-    {'name': 'round shield', 'min_def': 3, 'max_def': 8},
-    {'name': 'heater shield', 'min_def': 4, 'max_def': 10},
-    {'name': 'kite shield', 'min_def': 5, 'max_def': 12},
-    {'name': 'tower shield', 'min_def': 6, 'max_def': 14},
-    {'name': 'pavise', 'min_def': 7, 'max_def': 16},
-    {'name': 'spiked shield', 'min_def': 8, 'max_def': 18},
-    {'name': 'barrier shield', 'min_def': 9, 'max_def': 20},
-    {'name': 'aegis', 'min_def': 10, 'max_def': 22}
+    {'name': 'buckler', 'min_defence': 1, 'max_defence': 4},
+    {'name': 'targe', 'min_defence': 2, 'max_defence': 6},
+    {'name': 'round shield', 'min_defence': 3, 'max_defence': 8},
+    {'name': 'heater shield', 'min_defence': 4, 'max_defence': 10},
+    {'name': 'kite shield', 'min_defence': 5, 'max_defence': 12},
+    {'name': 'tower shield', 'min_defence': 6, 'max_defence': 14},
+    {'name': 'pavise', 'min_defence': 7, 'max_defence': 16},
+    {'name': 'spiked shield', 'min_defence': 8, 'max_defence': 18},
+    {'name': 'barrier shield', 'min_defence': 9, 'max_defence': 20},
+    {'name': 'aegis', 'min_defence': 10, 'max_defence': 22}
 ]
 
 RARITY_ADJECTIVES = {
@@ -154,24 +164,24 @@ def build_item(item_type: str, less_likely: bool = False):
     scale = random.choices([1, 2, 3, 4, 5], weights=weights)[0]
     rarity = list(RARITY_ADJECTIVES.keys())[scale - 1]
 
-    stat_key = 'min_dmg' if item_type == 'weapon' else 'min_def'
+    stat_key = 'min_damage' if item_type == 'weapon' else 'min_defence'
     min_stat = base_item[stat_key]
-    max_stat = min(base_item['max_' + stat_key[-3:]], min_stat + scale)
+    max_stat = min(base_item['max_' + stat_key[4:]], min_stat)
 
-    item = Weapon(base_item['name'], min_stat, max_stat, rarity) if item_type == 'weapon' else Shield(
-        base_item['name'], min_stat, max_stat, rarity)
+    item_obj = {'name': base_item['name'], str(stat_key): min_stat, str('max_' + stat_key[4:]): max_stat, 'rarity': rarity, 'scale': scale}
+    item = Weapon(**item_obj) if item_type == 'weapon' else Shield(**item_obj)
     item.name = get_modified_name(item.name, rarity, item_type)
 
     return item
 
 
 def find_median_stat(item):
-    stat_key = 'min_dmg' if item.type == 'weapon' else 'min_def'
-    min_stat = base_item[stat_key]
-    max_stat = min(base_item['max_' + stat_key[-3:]], min_stat + scale)
+    stat_key = 'min_damage' if item.type == 'weapon' else 'min_defence'
+    min_stat = getattr(item, stat_key)
+    max_stat = min(getattr(item, 'max_' + stat_key[4:]), min_stat + item.scale)
 
-    min_item_ = item.min_damage + int(item.min_damage * item.rarity * 0.1)
-    max_item_ = item.max_damage + int(item.max_damage * item.rarity * 0.15)
+    min_item_ = item.min_damage + int(item.min_damage * item.scale * 0.25)
+    max_item_ = item.max_damage + int(item.max_damage * item.scale * 0.6)
     median_item_ = (min_item_ + max_item_) // 2
     return median_item_ / 3
 
@@ -180,9 +190,9 @@ def roll_weapon_dmg(weapon) -> int:
     if not weapon:
         return 0
 
-    min_dmg = weapon.min_damage + int(weapon.min_damage * weapon.rarity * 0.1)
-    max_dmg = weapon.max_damage + int(weapon.max_damage * weapon.rarity * 0.15)
-    return random.randint(min_dmg, max_dmg)
+    min_damage = weapon.min_damage + int(weapon.min_damage * weapon.scale * 0.25)
+    max_damage = weapon.max_damage + int(weapon.max_damage * weapon.scale * 0.6)
+    return random.randint(min_damage, max_damage)
 
 
 def random_item_roll(less_likely):
