@@ -1,8 +1,8 @@
 import random
-from assets.context import cow_sayings, cow_names
+from assets.context import cow_sayings, cow_names, approaches
 
 class Cow:
-    def __init__(self, name, req_amount, likeliness, strength, hp, cash, is_shop, is_aggro, pack):
+    def __init__(self, name, req_amount, likeliness, strength, hp, cash, is_shop, is_aggro, pack, approach):
         self.name = name
         self.req_amount = req_amount
         self.likeliness = likeliness
@@ -13,27 +13,29 @@ class Cow:
         self.is_shop = is_shop
         self.is_aggro = is_aggro
         self.pack = pack
+        self.approach = approach
         self.mood = self.set_mood(self.likeliness)
 
     @staticmethod
     def generate_random_cow_properties(player):
         likeliness = Cow.set_random_likeliness()
-        max_strength = max(int(player.hp * 0.25), player.cash // 20)
+        max_strength = max(int(player.hp * 0.25), int(player.cash // 20))
         strength = random.randint(3, max_strength) if 3 < max_strength else 3
-        hp = max(10, strength * random.randint(1, 2) * (2 if likeliness < 5 else 1)) + random.randint(1, 3) * player.cash % 20
+        hp = max(10, strength * random.randint(1, 2) * (2 if likeliness < 5 else 1)) + random.randint(1, 3) * int(player.cash % 20)
         is_aggro = random.randint(0, 99) < 15 + int(player.cash / 20)
         is_shop = random.randint(0, 99) < 15 if not is_aggro else False
 
         return {
             "name": random.choice(cow_names),
-            "req_amount": (random.randint(1, 20) + player.cash % 50),
+            "req_amount": (random.randint(3, 12) + 5 * player.cash % 25),
             "likeliness": likeliness,
             "strength": strength,
             "hp": hp,
             "cash": random.choices([random.randint(strength, hp), random.randint(strength, hp) * 2], weights=[0.40, 0.60])[0],
             "is_shop": is_shop,
             "is_aggro": is_aggro,
-            "pack": random.randint(1, 6)
+            "pack": random.randint(1, 6),
+            "approach": random.choice(approaches)
         }
 
     @staticmethod
@@ -54,5 +56,8 @@ class Cow:
     def get_response(self, response_type):
         return random.choice(cow_sayings[self.mood][response_type])
 
-    def print_response(self, cow_name, response_type):
-        print(f"{cow_name}: {self.get_response(response_type)}\n")
+    def get_approach(self):
+        print(f'\n{self.approach}')
+
+    def print_response(self, cow_name, response_type, gap=True):
+        print(f"{cow_name}: {self.get_response(response_type)}" + ('\n' if gap else ''))
