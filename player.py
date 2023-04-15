@@ -23,10 +23,8 @@ class Player:
     def equip(self, item):
         if isinstance(item, Weapon):
             self.weapon = item
-            print(f"{self.name} equipped {item.name} as weapon.")
         elif isinstance(item, Shield):
             self.shield = item
-            print(f"{self.name} equipped {item.name} as shield.")
         else:
             print(f"{item.name} is neither a weapon nor a shield and cannot be equipped.")
 
@@ -52,7 +50,7 @@ class Player:
         print(context)
 
     def deal_damage(self, cow):
-        base_damage = 3 * (self.cash // 25)
+        base_damage = 2 * random.randint(1, 4)  + (self.cash // 25)
         weapon_damage = roll_weapon_dmg(self.weapon)
         total_damage = base_damage + weapon_damage
         total_damage = total_damage if cow.hp >= total_damage else cow.hp
@@ -107,7 +105,7 @@ class Player:
     
     def check_inventory(self):
         items = ', '.join(item.name for item in self.inventory) if self.inventory else "empty"
-        print(f"{self.name}'s inventory: {items}\n")
+        print(f"{self.name}'s inventory: {items}")
 
     def use_item(self, item):
         if item in self.inventory:
