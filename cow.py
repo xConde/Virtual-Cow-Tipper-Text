@@ -2,7 +2,8 @@ import random
 from assets.context import cow_sayings, cow_names, approaches
 
 class Cow:
-    def __init__(self, name, req_amount, likeliness, strength, hp, cash, is_shop, is_aggro, pack, approach):
+    def __init__(self, game_terminal, name, req_amount, likeliness, strength, hp, cash, is_shop, is_aggro, pack, approach):
+        self.game_terminal = game_terminal
         self.name = name
         self.req_amount = req_amount
         self.likeliness = likeliness
@@ -58,6 +59,17 @@ class Cow:
 
     def get_approach(self):
         print(f'\n{self.approach}')
+        self.game_terminal.draw_dialog(self.approach)
+        self.game_terminal.refresh()
 
     def print_response(self, cow_name, response_type, gap=True):
         print(f"{cow_name}: {self.get_response(response_type)}" + ('\n' if gap else ''))
+        self.game_terminal.draw_dialog(self.get_response(response_type))
+        
+    def get_combat_stats(self):
+        hp_str = f"{self.hp}/{self.max_hp}" if self.hp != self.max_hp else f"{self.hp}"
+        return f"{self.name} | {self.strength} STR | {hp_str} HP"
+
+    def get_mood_status(self):
+        return f"{self.name} | {self.mood}."
+        

@@ -3,26 +3,29 @@ from player import Player
 from item import Item
 from assets.context import interruptions
 from cow_interaction import CowInteraction
+from game_terminal import GameTerminal
 import random
 
 class VirtualCowTipper:
     def __init__(self, player_name):
-        self.player = Player(player_name)
+        self.game_terminal = GameTerminal()
+        self.player = Player(self.game_terminal, player_name)
         self.cow = None
         self.cows = [self.generate_cow() for _ in range(3)]
         self.cow_packs = {pack: 0 for pack in range(1, 7)}
         self.running = True
 
     def start(self):
-        print("\nVirtual Cow Tipper!")
-
         while self.running:
+            self.game_terminal.refresh()
+            self.player.display_info()
             self.player_turn()
             self.check_end_conditions()
 
     def generate_cow(self)-> Cow:
         cow_properties = Cow.generate_random_cow_properties(self.player)
         return Cow(
+            self.game_terminal,
             cow_properties['name'],
             cow_properties['req_amount'],
             cow_properties['likeliness'],
@@ -44,6 +47,7 @@ class VirtualCowTipper:
             self.cows.append(self.generate_cow())
 
     def destroy_cow(self):
+        self.game_terminal.set_cow_stats('')
         self.cow = None
 
     def update_cow_scores(self, cow: Cow, score: float):
@@ -69,10 +73,10 @@ class VirtualCowTipper:
             "quit game": lambda: setattr(self, "running", False),
         }
         while True:
-            print(*[f"{i+1}. {action.capitalize()}" for i, action in enumerate(actions.keys())], sep=" | ")
-
-            choice = input("Choose an action (1-4): ")
-            if choice.isdigit() and int(choice) in range(1, 5):
+            menu_items = [f"{i+1}. {action.capitalize()}" for i, action in enumerate(actions.keys())]
+            choice = self.game_terminal.get_menu_choice(menu_items)
+            print(choice)
+            if int(choice) in range(1, 5):
                 action_idx = int(choice) - 1
                 print('')
                 action_name = list(actions.keys())[action_idx]
@@ -85,9 +89,10 @@ class VirtualCowTipper:
                 print("Invalid choice. Please enter a number between 1 and 4.")
     
     def get_interruption(self):
-        return (lambda m: (print(f"\n{m}\n"), m)[1] if random.random() < 0.1 else False)(random.choice(interruptions))
+        return (lambda m: (self.game_terminal.draw_dialog(m), m)[1] if random.random() < 0.1 else False)(random.choice(interruptions))
 
     def check_end_conditions(self):
         if self.player.hp <= 0 or self.player.cash <= 0:
             self.player.die()
+            self.game_terminal.close_game_terminal()    # close the game terminal for now, add main menu later.
             self.running = False

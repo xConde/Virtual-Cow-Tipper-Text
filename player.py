@@ -3,7 +3,8 @@ from item import Weapon, Shield, Tool, CowBell, Bucket, roll_weapon_dmg
 from assets.context import small_damage_contexts, large_damage_contexts
 
 class Player:
-    def __init__(self, name, starting_hp=20, starting_cash=50):
+    def __init__(self, game_terminal, name, starting_hp=20, starting_cash=50):
+        self.game_terminal = game_terminal
         self.name = name
         self.hp = starting_hp
         self.cash = starting_cash
@@ -12,13 +13,11 @@ class Player:
         self.shield = None
 
     def display_info(self, combat=True):
-        print(f"{self.name} | HP: {self.hp} | Cash: ${self.cash}")
-        if combat:
-            if not self.weapon and not self.shield:
-                print("Weapon: None | Shield: None")
-            else:
-                self.weapon.stats() if self.weapon else print("Weapon: None")
-                self.shield.stats() if self.shield else print("Shield: None")
+        player_stats = f"{self.name} | HP: {self.hp} | Cash: ${self.cash}"
+        weapon = self.weapon.stats() if self.weapon else "Weapon: None"
+        shield = self.shield.stats() if self.shield else "Shield: None"
+        self.game_terminal.set_player_stats(player_stats, weapon, shield)
+        self.game_terminal.refresh()
 
     def equip(self, item):
         if isinstance(item, Weapon):
