@@ -75,18 +75,13 @@ class VirtualCowTipper:
         while True:
             menu_items = [f"{i+1}. {action.capitalize()}" for i, action in enumerate(actions.keys())]
             choice = self.game_terminal.get_menu_choice(menu_items)
-            print(choice)
-            if int(choice) in range(1, 5):
-                action_idx = int(choice) - 1
-                print('')
-                action_name = list(actions.keys())[action_idx]
+            if int(choice) in range(1, len(actions.keys())+1):
+                action_name = list(actions.keys())[int(choice) - 1]
                 try:
                     actions[action_name](self.cow)
                 except TypeError:
                     actions[action_name]()
                 return
-            else:
-                print("Invalid choice. Please enter a number between 1 and 4.")
     
     def get_interruption(self):
         return (lambda m: (self.game_terminal.draw_dialog(m), m)[1] if random.random() < 0.1 else False)(random.choice(interruptions))
