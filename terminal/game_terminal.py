@@ -1,4 +1,6 @@
 import curses
+from pause_menu import PauseMenu
+from dialog_history import DialogHistory
 
 class GameTerminal:
     WIDTH = 100
@@ -36,6 +38,8 @@ class GameTerminal:
         self.player_weapon = ''
         self.player_shield = ''
         self.cow_stats = 'Diary of a Cow | Solid'
+        self.dialog_history = DialogHistory()
+        self.pause_menu = PauseMenu(self)
 
     def draw(self, y, x, text, custom_attr=0, align='left'):
         if align == 'right':
@@ -101,6 +105,7 @@ class GameTerminal:
         self.draw(y=self.COW_INFO_Y, x=0, text=self.cow_stats, align='right')
 
     def draw_dialog(self, text):
+        self.dialog_history.add_dialog(text)
         lines = text.split("\n")
         for idx, line in enumerate(lines):
             self.draw(self.DIALOG_Y_START + idx, 0, line)
@@ -117,6 +122,9 @@ class GameTerminal:
         self.show_art = not self.show_art
         if art:
             self.art = art.split("\n")
+
+    def handle_pause(self):
+        self.pause_menu.pause()
 
     def enable_mouse(self):
         curses.mousemask(curses.ALL_MOUSE_EVENTS | curses.REPORT_MOUSE_POSITION)
