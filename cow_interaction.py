@@ -12,6 +12,7 @@ from assets.context import cow_names
 class CowInteraction():
     def __init__(self, game_instance, player, cow):
         self.game_instance = game_instance
+        self.game_terminal = self.game_terminal
         self.player = player
         self.cow = cow
 
@@ -30,7 +31,7 @@ class CowInteraction():
         handler()
 
     def calculate_dairy_chance(self):
-        cow_bell = self.get_cow_bell()
+        cow_bell = self.get_item_from_inventory(CowBell)
         dairy_encounter_chance = 5 if not cow_bell else 15
         is_dairy = random.randint(0, 99) < dairy_encounter_chance
         if is_dairy:
@@ -45,7 +46,7 @@ class CowInteraction():
         return is_dairy
 
     def handle_dairy(self):
-        bucket = self.get_bucket()
+        bucket = self.get_item_from_inventory(Bucket)
         if bucket:
             liquid_gold = bucket.use()
             self.player.update_inventory(liquid_gold, "add")
@@ -59,7 +60,7 @@ class CowInteraction():
 
     def handle_combat(self):
         print(f"A combat with '{self.cow.name}' has started!")
-        self.game_instance.game_terminal.set_cow_stats(self.cow.get_combat_stats())
+        self.game_terminal.set_cow_stats(self.cow.get_combat_stats())
 
         cow_strength = self.cow.strength
 
@@ -71,8 +72,7 @@ class CowInteraction():
                 "flee": "Flee"
             }
 
-            menu_items = [f"{i + 1}. {action}" for i, action in enumerate(actions.values())]
-            choice = self.game_instance.game_terminal.get_menu_choice(menu_items)
+            choice = self.handle_menu_choice(actions, "Choose an action: ")
 
             if choice.isdigit() and int(choice) in range(1, 5):
                 choice = int(choice)
@@ -116,7 +116,7 @@ class CowInteraction():
             item_strings.append("4. Leave the shop")
 
             menu_items = item_strings
-            choice = self.game_instance.game_terminal.get_menu_choice(menu_items)
+            choice = self.game_terminal.get_menu_choice(menu_items)
             if choice.isdigit() and int(choice) in range(1, 5):
                 choice = int(choice)
                 if choice == 4:
@@ -143,10 +143,10 @@ class CowInteraction():
                 print("Invalid choice. Please enter a number between 1 and 4.")
 
     def handle_tip_or_leave(self):
-        self.game_instance.game_terminal.set_cow_stats(self.cow.get_mood_status())
+        self.game_terminal.set_cow_stats(self.cow.get_mood_status())
         self.cow.print_response(self.cow.name, 'intro', False)
 
-        choice = input("Tip or leave? (1. Tip | 2. Leave): ")
+        choice = self.handle_menu_choice(actions, "Choose an action: ")
         if choice == "1":
             min_bet = self.cow.req_amount
             max_bet = min(self.player.cash, self.cow.req_amount * random.randint(2,5))
@@ -202,15 +202,14 @@ class CowInteraction():
         else:
             print("Please enter a number between 1 and 2.")
 
-    def get_cow_bell(self):
-        for item in self.player.inventory:
-            if isinstance(item, CowBell):
-                return item
-        return None
+    def handle_menu_choice(self, actions, prompt):
+        menu_items = [f"{i + 1}. {action}" for i, action in enumerate(actions.values())]
+        choice = self.game_terminal.get_menu_choice(menu_items, prompt)
+        return choice
 
-    def get_bucket(self):
+    def get_item_from_inventory(self, item_class):
         for item in self.player.inventory:
-            if isinstance(item, Bucket):
+            if isinstance(item, item_class):
                 return item
-        return None
-
+        else:
+            return None
