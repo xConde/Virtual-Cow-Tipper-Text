@@ -106,9 +106,11 @@ class GameTerminal:
 
     def draw_dialog(self, text):
         self.dialog_history.add_dialog(text)
-        lines = text.split("\n")
+        timestamp, message = self.dialog_history.get_dialog(-1)
+        lines = message.split("\n")
         for idx, line in enumerate(lines):
-            self.draw(self.DIALOG_Y_START + idx, 0, line)
+            formatted_line = f"[{timestamp}] {line}"
+            self.draw(self.DIALOG_Y_START + idx, 0, formatted_line)
 
     def set_player_stats(self, stats, weapon, shield):
         self.player_stats = stats
