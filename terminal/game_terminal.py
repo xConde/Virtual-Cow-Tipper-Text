@@ -167,6 +167,12 @@ class GameTerminal:
             self.stdscr.move(line, 0)
             self.stdscr.clrtoeol()
 
+    def clear_screen(self):
+        if os.name == 'nt':
+            os.system('cls')
+        else:
+            os.system('clear')
+
     def refresh(self):
         self.update_section_positions()
         self.draw_game_title()

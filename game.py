@@ -3,7 +3,7 @@ from player import Player
 from item import Item
 from assets.context import interruptions
 from cow_interaction import CowInteraction
-from game_terminal import GameTerminal
+from terminal.game_terminal import GameTerminal
 import random
 
 class VirtualCowTipper:
@@ -17,6 +17,7 @@ class VirtualCowTipper:
 
     def start(self):
         while self.running:
+            self.game_terminal.clear_screen()
             self.game_terminal.refresh()
             self.player.display_info()
             self.player_turn()
