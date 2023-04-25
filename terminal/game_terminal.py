@@ -32,6 +32,7 @@ class GameTerminal:
         self.stdscr = curses.initscr()
         curses.noecho()
         curses.cbreak()
+        curses.curs_set(0)
         self.stdscr.keypad(True)
         self.stdscr.resize(self.HEIGHT, self.WIDTH)
         self.show_art = False
@@ -54,6 +55,7 @@ class GameTerminal:
             self.stdscr.clrtoeol()
             if i == selected_index:
                 self.stdscr.addstr(self.MENU_Y_START + i, 0, item.ljust(self.WIDTH), curses.A_REVERSE)
+                self.stdscr.chgat(self.MENU_Y_START + i, len(item), self.WIDTH - len(item), curses.A_REVERSE)
             else:
                 self.stdscr.addstr(self.MENU_Y_START + i, 0, item.ljust(self.WIDTH))
 
@@ -66,7 +68,6 @@ class GameTerminal:
             self.draw(self.PROMPT_INPUT_Y, 0, prompt_message)
             self.stdscr.refresh()
             key = self.stdscr.getch()
-            print(f'Pressed key code: {key}')
             if key in [450, ord('w'), ord('W')]:
                 selected_index = (selected_index - 1) % len(menu_items)
             elif key in [456, ord('s'), ord('S')]:
