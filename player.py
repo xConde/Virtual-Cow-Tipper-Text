@@ -85,22 +85,15 @@ class Player:
         else:
             print(f"{self.name} does not have {item.name} in their inventory to sell.")
 
-    def add_item_to_inventory(self, item):
-        if len(self.inventory) >= 8:
-            print(f"{self.name}'s inventory is full. {item.name} could not be added.")
-            return
-
-        self.inventory.append(item)
-
-        if isinstance(item, (Weapon, Shield)) and item.is_upgrade(self, item):
-            print(f"{self.name} added {item.name} to their inventory and equipped it as their new {item.type}.")
-            self.equip(item)
+    def update_inventory(self, item, action):
+        if action == "add" and len(self.inventory) < 8:
+            self.inventory.append(item)
+            if isinstance(item, (Weapon, Shield)) and item.is_upgrade(self, item):
+                self.equip(item)
+        elif action == "remove" and item in self.inventory:
+            self.inventory.remove(item)
         else:
-            print(f"{self.name} added {item.name} to their inventory.")
-
-    def remove_item_from_inventory(self, item):
-        self.inventory.remove(item)
-        print(f"{self.name} dropped {item.name} from their inventory.")
+            print(f"update_inventory failed to {action} {item.name}.")
     
     def check_inventory(self):
         items = ', '.join(item.name for item in self.inventory) if self.inventory else "empty"
