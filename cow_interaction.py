@@ -74,7 +74,7 @@ class CowInteraction():
 
             choice = self.handle_menu_choice(actions)
 
-            if choice.isdigit() and int(choice) in range(1, 5):
+            if choice in range(1, 5):
                 choice = int(choice)
                 if choice == 1:
                     self.player.deal_damage(self.cow)
@@ -117,7 +117,7 @@ class CowInteraction():
 
             menu_items = item_strings
             choice = self.game_terminal.get_menu_choice(menu_items)
-            if choice.isdigit() and int(choice) in range(1, 5):
+            if choice in range(1, 5):
                 choice = int(choice)
                 if choice == 4:
                     self.cow.print_response(self.cow.name, 'shop_keeper_end')
