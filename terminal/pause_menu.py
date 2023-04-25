@@ -4,6 +4,7 @@ import sys
 class PauseMenu:
     def __init__(self, game_terminal):
         self.game_terminal = game_terminal
+        self.dialog_history = game_terminal.dialog_history
 
     def pause(self):
         self.game_terminal.stdscr.nodelay(True)
@@ -48,8 +49,8 @@ class PauseMenu:
 
     def show_dialog_history(self):
         self.game_terminal.clear_area(self.game_terminal.DIALOG_Y_START, self.game_terminal.DIALOG_Y_END)
-        for i in range(len(self.game_terminal.dialog_history.dialog_history)):
-            self.game_terminal.draw(self.game_terminal.DIALOG_Y_START + i, 0, self.game_terminal.dialog_history.get_dialog(i))
+        for i in range(len(self.dialog_history.dialog_history)):
+            self.game_terminal.draw(self.game_terminal.DIALOG_Y_START + i, 0, self.dialog_history.get_dialog(i))
         self.game_terminal.stdscr.refresh()
 
     def show_options(self):

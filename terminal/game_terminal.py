@@ -1,6 +1,7 @@
 import curses
-from pause_menu import PauseMenu
-from dialog_history import DialogHistory
+import os
+from .pause_menu import PauseMenu
+from .dialog_history import DialogHistory
 
 class GameTerminal:
     WIDTH = 100
@@ -55,10 +56,12 @@ class GameTerminal:
             else:
                 self.stdscr.addstr(self.MENU_Y_START + i, 0, item.ljust(self.WIDTH))
 
-    def get_menu_choice(self, menu_items):
+    def get_menu_choice(self, menu_items, prompt=None):
         selected_index = 0
         self.enable_mouse()
         while True:
+            prompt_message = prompt if prompt is not None else "Select an option:"
+            self.draw_dialog(prompt_message)
             self.draw_menu(menu_items, selected_index)
             self.stdscr.refresh()
 
@@ -81,7 +84,6 @@ class GameTerminal:
 
         self.disable_mouse()
         self.clear_area(self.DIALOG_Y_START, self.DIALOG_Y_END)
-        self.draw_dialog(f"Selected menu item: {menu_items[selected_index]}")  # Debug message
         self.stdscr.refresh()
         return selected_index + 1
 
@@ -109,8 +111,7 @@ class GameTerminal:
         timestamp, message = self.dialog_history.get_dialog(-1)
         lines = message.split("\n")
         for idx, line in enumerate(lines):
-            formatted_line = f"[{timestamp}] {line}"
-            self.draw(self.DIALOG_Y_START + idx, 0, formatted_line)
+            self.draw(self.DIALOG_Y_START + idx, 0, line)
 
     def set_player_stats(self, stats, weapon, shield):
         self.player_stats = stats

@@ -12,7 +12,7 @@ from assets.context import cow_names
 class CowInteraction():
     def __init__(self, game_instance, player, cow):
         self.game_instance = game_instance
-        self.game_terminal = self.game_terminal
+        self.game_terminal = self.game_instance.game_terminal
         self.player = player
         self.cow = cow
 
@@ -72,7 +72,7 @@ class CowInteraction():
                 "flee": "Flee"
             }
 
-            choice = self.handle_menu_choice(actions, "Choose an action: ")
+            choice = self.handle_menu_choice(actions)
 
             if choice.isdigit() and int(choice) in range(1, 5):
                 choice = int(choice)
@@ -145,8 +145,12 @@ class CowInteraction():
     def handle_tip_or_leave(self):
         self.game_terminal.set_cow_stats(self.cow.get_mood_status())
         self.cow.print_response(self.cow.name, 'intro', False)
+        actions = {
+            "tip": "Tip {self.cow.name}",
+            "leave": "Flee from the cow"
+        }
 
-        choice = self.handle_menu_choice(actions, "Choose an action: ")
+        choice = self.handle_menu_choice(actions)
         if choice == "1":
             min_bet = self.cow.req_amount
             max_bet = min(self.player.cash, self.cow.req_amount * random.randint(2,5))
@@ -202,7 +206,7 @@ class CowInteraction():
         else:
             print("Please enter a number between 1 and 2.")
 
-    def handle_menu_choice(self, actions, prompt):
+    def handle_menu_choice(self, actions, prompt=None):
         menu_items = [f"{i + 1}. {action}" for i, action in enumerate(actions.values())]
         choice = self.game_terminal.get_menu_choice(menu_items, prompt)
         return choice
