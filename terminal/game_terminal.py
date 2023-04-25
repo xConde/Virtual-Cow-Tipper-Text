@@ -48,6 +48,7 @@ class GameTerminal:
         self.stdscr.addstr(y, x, text, custom_attr)
 
     def draw_menu(self, menu_items, selected_index=None):
+        self.clear_area(self.MENU_Y_START, self.MENU_Y_END + 1)
         for i, item in enumerate(menu_items):
             self.stdscr.move(self.MENU_Y_START + i, 0)
             self.stdscr.clrtoeol()
@@ -80,6 +81,7 @@ class GameTerminal:
         return selected_index + 1
 
     def draw_art(self):
+        self.clear_area(self.ART_Y_START, self.ART_Y_END)
         for idx, line in enumerate(self.art):
             self.draw(self.ART_Y_START + idx, 0, line)
 
@@ -87,10 +89,12 @@ class GameTerminal:
         self.draw(self.SEPARATOR_Y, 0, "-" * self.WIDTH)
 
     def draw_game_title(self):
+        self.clear_area(self.TITLE_Y)
         x = (self.WIDTH - len(self.title)) // 2
         self.draw(self.TITLE_Y, x, self.title, curses.A_BOLD)
 
-    def draw_player_stats(self):            
+    def draw_player_stats(self):
+        self.clear_area(self.PLAYER_INFO_Y, self.PLAYER_INFO_Y + 3)  
         self.draw(self.PLAYER_INFO_Y, 0, self.player_stats)
         self.draw(self.PLAYER_INFO_Y + 1, 0, self.player_weapon)
         self.draw(self.PLAYER_INFO_Y + 2, 0, self.player_shield)
@@ -99,6 +103,7 @@ class GameTerminal:
         self.draw(y=self.COW_INFO_Y, x=0, text=self.cow_stats, align='right')
 
     def draw_dialog(self, text):
+        self.clear_area(self.DIALOG_Y_START, self.DIALOG_Y_END)
         self.dialog_history.add_dialog(text)
         timestamp, message = self.dialog_history.get_dialog(-1)
         lines = message.split("\n")
@@ -167,6 +172,7 @@ class GameTerminal:
             os.system('clear')
 
     def refresh(self):
+        self.clear_screen()
         self.update_section_positions()
         self.draw_game_title()
         self.draw_player_stats()
