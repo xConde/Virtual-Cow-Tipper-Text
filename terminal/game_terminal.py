@@ -61,29 +61,21 @@ class GameTerminal:
         self.enable_mouse()
         while True:
             prompt_message = prompt if prompt is not None else "Select an option:"
-            self.draw_dialog(prompt_message)
             self.draw_menu(menu_items, selected_index)
+            self.draw(self.PROMPT_INPUT_Y, 0, prompt_message)
             self.stdscr.refresh()
-
-            # Wait for a mouse event or a key press
-            event = self.stdscr.getch()
-            if event == curses.KEY_MOUSE:
-                _, x, y, _, _ = curses.getmouse()
-                if y >= self.MENU_Y_START and y < self.MENU_Y_START + len(menu_items):
-                    selected_index = y - self.MENU_Y_START
-                    self.draw_menu(menu_items, selected_index)
-                    self.stdscr.refresh()
-                    break
-
-            elif event == curses.KEY_UP:
+            key = self.stdscr.getch()
+            print(f'Pressed key code: {key}')
+            if key in [450, ord('w'), ord('W')]:
                 selected_index = (selected_index - 1) % len(menu_items)
-            elif event == curses.KEY_DOWN:
+            elif key in [456, ord('s'), ord('S')]:
                 selected_index = (selected_index + 1) % len(menu_items)
-            elif event == ord('\n'):
+            elif key == ord('\n'):
                 break
 
         self.disable_mouse()
         self.clear_area(self.DIALOG_Y_START, self.DIALOG_Y_END)
+        self.clear_area(self.PROMPT_INPUT_Y)
         self.stdscr.refresh()
         return selected_index + 1
 

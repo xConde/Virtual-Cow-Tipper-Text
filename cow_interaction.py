@@ -146,7 +146,7 @@ class CowInteraction():
         self.game_terminal.set_cow_stats(self.cow.get_mood_status())
         self.cow.print_response(self.cow.name, 'intro', False)
         actions = {
-            "tip": "Tip {self.cow.name}",
+            "tip": f"Tip {self.cow.name}",
             "leave": "Flee from the cow"
         }
 
