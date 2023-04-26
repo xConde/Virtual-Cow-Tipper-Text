@@ -65,6 +65,7 @@ class GameTerminal:
         while True:
             prompt_message = prompt if prompt is not None else "Select an option:"
             self.draw_menu(menu_items, selected_index)
+            self.clear_area(self.PROMPT_INPUT_Y)
             self.draw(self.PROMPT_INPUT_Y, 0, prompt_message)
             self.stdscr.refresh()
             key = self.stdscr.getch()
@@ -73,6 +74,9 @@ class GameTerminal:
             elif key in [456, ord('s'), ord('S')]:
                 selected_index = (selected_index + 1) % len(menu_items)
             elif key == ord('\n'):
+                break
+            elif key >= ord('1') and key <= ord(str(len(menu_items))):
+                selected_index = key - 49
                 break
 
         self.disable_mouse()
