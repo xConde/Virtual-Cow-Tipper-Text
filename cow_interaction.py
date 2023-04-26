@@ -4,6 +4,8 @@ import os
 import msvcrt
 from item import CowBell, Bucket, random_item_roll, get_shop_items
 from assets.context import cow_names
+from cow_attack import CowAttack
+from cow_games import CowGames
 
 # rarity should raise the floor for items rare dag should not be min 1
 
@@ -130,7 +132,7 @@ class CowInteraction():
                     self.player.cash -= item_price
                     score = 1 + int(item_choice['price'] // 50)
                     self.game_instance.update_cow_scores(self.cow, score)
-                    self.player.add_item_to_inventory(item_choice['item'])
+                    self.player.update_inventory(item_choice['item'], "add")
                     self.cow.print_response(self.cow.name, 'shop_keeper_purchase', False)
                     if item_choice['item'].type in ['weapon', 'shield']:
                         print(f"You purchased a {item_choice['item'].stats()} for ${item_price}.")
