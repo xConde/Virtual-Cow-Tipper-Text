@@ -67,6 +67,7 @@ class GameTerminal:
             self.draw_menu(menu_items, selected_index)
             self.clear_area(self.PROMPT_INPUT_Y)
             self.draw(self.PROMPT_INPUT_Y, 0, prompt_message)
+            self.stdscr.chgat(self.PROMPT_INPUT_Y, 0, len(prompt_message), 0)
             self.stdscr.refresh()
             key = self.stdscr.getch()
             if key in [450, ord('w'), ord('W')]:
