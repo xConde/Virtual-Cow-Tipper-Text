@@ -59,25 +59,52 @@ class GameTerminal:
             else:
                 self.stdscr.addstr(self.MENU_Y_START + i, 0, item.ljust(self.WIDTH))
 
+                
+    def get_key_variables(self):
+        KEY_UP = 450
+        KEY_DOWN = 456
+        KEY_ENTER = ord('\n')
+        KEY_ESCAPE = 27
+        NUM_OFFSET = 49
+
+        return KEY_UP, KEY_DOWN, KEY_ENTER, KEY_ESCAPE, NUM_OFFSET
+
+    def prompt_and_draw_menu(self, menu_items, selected_index, prompt=None):
+        prompt_message = prompt if prompt is not None else "Select an option:"
+        self.draw_menu(menu_items, selected_index)
+        self.clear_area(self.PROMPT_INPUT_Y)
+        self.draw(self.PROMPT_INPUT_Y, 0, prompt_message)
+        self.stdscr.chgat(self.PROMPT_INPUT_Y, 0, len(prompt_message), 0)
+        self.stdscr.refresh()
+        key = self.stdscr.getch()
+        return key
+
     def get_menu_choice(self, menu_items, prompt=None):
+        KEY_UP, KEY_DOWN, KEY_ENTER, KEY_ESCAPE, NUM_OFFSET = self.get_key_variables()
+
+        key_actions = {
+            KEY_UP: lambda: (selected_index - 1) % len(menu_items),
+            KEY_DOWN: lambda: (selected_index + 1) % len(menu_items),
+            KEY_ENTER: lambda: None,
+            KEY_ESCAPE: lambda: self.pause_menu.pause(),
+        }
+
         selected_index = 0
         self.enable_mouse()
         while True:
-            prompt_message = prompt if prompt is not None else "Select an option:"
-            self.draw_menu(menu_items, selected_index)
-            self.clear_area(self.PROMPT_INPUT_Y)
-            self.draw(self.PROMPT_INPUT_Y, 0, prompt_message)
-            self.stdscr.chgat(self.PROMPT_INPUT_Y, 0, len(prompt_message), 0)
-            self.stdscr.refresh()
-            key = self.stdscr.getch()
-            if key in [450, ord('w'), ord('W')]:
-                selected_index = (selected_index - 1) % len(menu_items)
-            elif key in [456, ord('s'), ord('S')]:
-                selected_index = (selected_index + 1) % len(menu_items)
-            elif key == ord('\n'):
-                break
-            elif key >= ord('1') and key <= ord(str(len(menu_items))):
-                selected_index = key - 49
+            key = self.prompt_and_draw_menu(menu_items, selected_index, prompt)
+
+            if key in key_actions:
+                action = key_actions[key]
+                result = action()
+                if result is None:
+                    break
+                elif key == KEY_ESCAPE:
+                    continue
+                else:
+                    selected_index = result
+            elif NUM_OFFSET <= key <= NUM_OFFSET + len(menu_items) - 1:
+                selected_index = key - NUM_OFFSET
                 break
 
         self.disable_mouse()
