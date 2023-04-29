@@ -123,7 +123,6 @@ class GameTerminal:
         self.draw(self.SEPARATOR_Y - offset, 0, "-" * self.WIDTH)
 
     def draw_game_title(self):
-        self.clear_area(self.TITLE_Y)
         x = (self.WIDTH - len(self.title)) // 2
         self.draw(self.TITLE_Y, x, self.title, curses.A_BOLD)
 
@@ -208,8 +207,8 @@ class GameTerminal:
     def refresh(self):
         self.clear_screen()
         self.update_section_positions()
-        self.draw_game_title()
         self.draw_player_stats()
+        self.draw_game_title()
         self.draw_cow_stats()
         self.draw_separator()
 
