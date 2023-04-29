@@ -126,11 +126,12 @@ class GameTerminal:
         x = (self.WIDTH - len(self.title)) // 2
         self.draw(self.TITLE_Y, x, self.title, curses.A_BOLD)
 
-    def draw_player_stats(self):
+    def draw_player_stats(self, show_equiptment=True):
         self.clear_area(self.PLAYER_INFO_Y, self.PLAYER_INFO_Y + 3)  
         self.draw(self.PLAYER_INFO_Y, 0, self.player_stats)
-        self.draw(self.PLAYER_INFO_Y + 1, 0, self.player_weapon)
-        self.draw(self.PLAYER_INFO_Y + 2, 0, self.player_shield)
+        if show_equiptment:
+            self.draw(self.PLAYER_INFO_Y + 1, 0, self.player_weapon)
+            self.draw(self.PLAYER_INFO_Y + 2, 0, self.player_shield)
 
     def draw_cow_stats(self):
         self.draw(y=self.COW_INFO_Y, x=0, text=self.cow_stats, align='right')

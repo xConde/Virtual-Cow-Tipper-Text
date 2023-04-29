@@ -22,3 +22,4 @@ class DialogHistory:
 
     def clear_history(self):
         self.dialog_history = []
+        

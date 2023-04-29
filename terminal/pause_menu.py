@@ -11,9 +11,11 @@ class PauseMenu:
         self.game_terminal.stdscr.clear()
         self.game_terminal.stdscr.refresh()
 
+        self.game_terminal.draw_player_stats(show_equiptment=False)
+        self.game_terminal.draw_cow_stats()
+        self.draw_pause_menu_title()
         self.game_terminal.draw_separator(2)
         self.show_dialog_history()
-        self.draw_pause_menu_title()
         self.set_menu_start_position()
 
         self.game_terminal.stdscr.nodelay(True)
