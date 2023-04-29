@@ -12,6 +12,7 @@ class GameTerminal:
     COW_INFO_X = 50
     TITLE_Y = 2
     SEPARATOR_Y = 4
+    PAUSE_DIALOG_LINES = 5
 
     ART_Y_START = 5
     ART_Y_END = 19
@@ -118,8 +119,8 @@ class GameTerminal:
         for idx, line in enumerate(self.art):
             self.draw(self.ART_Y_START + idx, 0, line)
 
-    def draw_separator(self):
-        self.draw(self.SEPARATOR_Y, 0, "-" * self.WIDTH)
+    def draw_separator(self, offset=0):
+        self.draw(self.SEPARATOR_Y - offset, 0, "-" * self.WIDTH)
 
     def draw_game_title(self):
         self.clear_area(self.TITLE_Y)
