@@ -26,7 +26,7 @@ class CowInteraction():
             "tip_or_leave": self.handle_tip_or_leave
         }
         
-        cow_type = "aggro" if self.cow.is_aggro else "shop" if self.cow.is_shop else "dairy" if self.calculate_dairy_chance() else "tip_or_leave"
+        cow_type = self.cow.get_cow_type()
         handler = handlers[cow_type]
         
         self.game_instance.player.display_info(combat=self.cow.is_aggro)
