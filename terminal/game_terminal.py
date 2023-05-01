@@ -49,17 +49,45 @@ class GameTerminal:
             x = self.WIDTH - len(text) - 3
         self.stdscr.addstr(y, x, text, custom_attr)
 
+    def generate_pointer(self, menu_item_length, total_width):
+        min_spaces_between = 8
+        min_equal_symbols = 8
+        pointer_left = ">"
+        pointer_right = "<"
+        spaces_between = " " * min_spaces_between
+
+        half_width = total_width // 2
+        left_padding = half_width - menu_item_length // 2 - len(pointer_left) - min_spaces_between // 2 - min_equal_symbols
+        right_padding = total_width - half_width - menu_item_length // 2 - len(pointer_right) - min_spaces_between // 2 - min_equal_symbols
+
+        if left_padding > 0:
+            equal_symbols_left = "=" * (min_equal_symbols + left_padding)
+        else:
+            equal_symbols_left = "=" * min_equal_symbols
+            spaces_between = " " * max(min_spaces_between + left_padding, 0)
+
+        if right_padding > 0:
+            equal_symbols_right = "=" * (min_equal_symbols + right_padding)
+        else:
+            equal_symbols_right = "=" * min_equal_symbols
+            spaces_between = " " * max(min_spaces_between - 1, 0)
+
+        return equal_symbols_left + pointer_left + spaces_between + pointer_right + equal_symbols_right
+
     def draw_menu(self, menu_items, selected_index=None):
         self.clear_area(self.MENU_Y_START, self.MENU_Y_END + 1)
         for i, item in enumerate(menu_items):
             self.stdscr.move(self.MENU_Y_START + i, 0)
             self.stdscr.clrtoeol()
             if i == selected_index:
-                self.stdscr.addstr(self.MENU_Y_START + i, 0, item.ljust(self.WIDTH), curses.A_REVERSE)
-                self.stdscr.chgat(self.MENU_Y_START + i, len(item), self.WIDTH - len(item), curses.A_REVERSE)
+                pointer = self.generate_pointer(len(item), self.WIDTH)
+                item_with_pointer = pointer[:len(pointer)//2] + item + pointer[len(pointer)//2:]
+                self.stdscr.addstr(self.MENU_Y_START + i, 0, item_with_pointer.ljust(self.WIDTH))
+                max_chgat_len = min(self.WIDTH - len(pointer)//2, len(item_with_pointer))
+                self.stdscr.chgat(self.MENU_Y_START + i, len(pointer)//2, max_chgat_len)
             else:
                 self.stdscr.addstr(self.MENU_Y_START + i, 0, item.ljust(self.WIDTH))
-
+        self.stdscr.refresh()
                 
     def get_key_variables(self):
         KEY_UP = 450
@@ -71,7 +99,7 @@ class GameTerminal:
         return KEY_UP, KEY_DOWN, KEY_ENTER, KEY_ESCAPE, NUM_OFFSET
 
     def prompt_and_draw_menu(self, menu_items, selected_index, prompt=None):
-        prompt_message = prompt if prompt is not None else "Select an option:"
+        prompt_message = prompt if prompt is not None else 'Select an option:'
         self.draw_menu(menu_items, selected_index)
         self.clear_area(self.PROMPT_INPUT_Y)
         self.draw(self.PROMPT_INPUT_Y, 0, prompt_message)
@@ -139,8 +167,7 @@ class GameTerminal:
     def draw_dialog(self, text):
         self.clear_area(self.DIALOG_Y_START, self.DIALOG_Y_END)
         self.dialog_history.add_dialog(text)
-        timestamp, message = self.dialog_history.get_dialog(-1)
-        lines = message.split("\n")
+        lines = text.split("\n")
         for idx, line in enumerate(lines):
             self.draw(self.DIALOG_Y_START + idx, 0, line)
 

@@ -94,7 +94,10 @@ class PauseMenu:
 
     def show_dialog_history(self):
         self.game_terminal.clear_area(self.game_terminal.DIALOG_Y_START - 2, self.game_terminal.DIALOG_Y_END - 2)
-        for idx, item in enumerate(reversed(self.game_terminal.dialog_history.dialog_history[-3:])):
+        available_lines = min(3, self.game_terminal.DIALOG_Y_END - self.game_terminal.DIALOG_Y_START + 2)
+        recent_messages = list(reversed(self.game_terminal.dialog_history.dialog_history[-available_lines:]))
+        
+        for idx, item in enumerate(recent_messages):
             timestamp, message = item
 
             if len(message) > self.game_terminal.dialog_history.message_max_chars:
