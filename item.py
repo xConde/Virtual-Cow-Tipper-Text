@@ -6,6 +6,12 @@ class Item:
         self.name = name
         self.item_type = item_type
 
+    def display_name(self):
+        if hasattr(self, 'rarity'):
+            return f"{self.name.title()} ({self.rarity})"
+        else:
+            return self.name
+
 
 class Potion(Item):
     def __init__(self, name, stat, boost_amount, duration=None):
@@ -176,12 +182,17 @@ def build_item(item_type: str, less_likely: bool = False):
 
 
 def find_median_stat(item):
-    stat_key = 'min_damage' if item.type == 'weapon' else 'min_defence'
-    min_stat = getattr(item, stat_key)
-    max_stat = min(getattr(item, 'max_' + stat_key[4:]), min_stat + item.scale)
+    if item.type == 'weapon':
+        min_stat = item.min_damage
+        max_stat = item.max_damage
+    elif item.type == 'shield':
+        min_stat = item.min_defence
+        max_stat = item.max_defence
+    else:
+        raise ValueError('Invalid item type for find_median_stat function.')
 
-    min_item_ = item.min_damage + int(item.min_damage * item.scale * 0.25)
-    max_item_ = item.max_damage + int(item.max_damage * item.scale * 0.6)
+    min_item_ = min_stat + int(min_stat * item.scale * 0.25)
+    max_item_ = max_stat + int(max_stat * item.scale * 0.6)
     median_item_ = (min_item_ + max_item_) // 2
     return median_item_ / 3
 

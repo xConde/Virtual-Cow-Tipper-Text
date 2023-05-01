@@ -14,8 +14,8 @@ class Player:
 
     def display_info(self, combat=True):
         player_stats = f"{self.name} | HP: {self.hp} | Cash: ${self.cash}"
-        weapon = self.weapon.stats() if self.weapon else "Weapon: None"
-        shield = self.shield.stats() if self.shield else "Shield: None"
+        weapon = self.weapon.display_name() if self.weapon else "Weapon: None"
+        shield = self.shield.display_name() if self.shield else "Shield: None"
         self.game_terminal.set_player_stats(player_stats, weapon, shield)
         self.game_terminal.refresh()
 
