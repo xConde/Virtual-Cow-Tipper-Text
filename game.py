@@ -76,7 +76,7 @@ class VirtualCowTipper:
         while True:
             menu_items = [f"{i+1}. {action.capitalize()}" for i, action in enumerate(actions.keys())]
             choice = self.game_terminal.get_menu_choice(menu_items)
-            if int(choice) in range(1, len(actions.keys())+1):
+            if choice in range(1, len(actions.keys())+1):
                 action_name = list(actions.keys())[int(choice) - 1]
                 try:
                     actions[action_name](self.cow)

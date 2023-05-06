@@ -26,7 +26,7 @@ class CowInteraction():
             "tip_or_leave": self.handle_tip_or_leave
         }
         
-        cow_type = self.cow.get_cow_type()
+        cow_type = "aggro" if self.cow.is_aggro else "shop" if self.cow.is_shop else "dairy" if self.calculate_dairy_chance() else "tip_or_leave"
         handler = handlers[cow_type]
         
         self.game_instance.player.display_info(combat=self.cow.is_aggro)
@@ -82,8 +82,10 @@ class CowInteraction():
                     self.player.deal_damage(self.cow)
                     if self.cow.hp <= 0:
                         self.game_instance.update_cow_scores(self.cow, 1)
-                        self.player.cash += self.cow.cash
-                        print(f"You defeat {self.cow.name}. You gain ${self.cow.cash}.")
+                        self.player.update_cash(self.cow.cash)
+                        victory_msg = f"You defeat {self.cow.name}. You gain ${self.cow.cash}."
+                        print(victory_msg)
+                        self.game_terminal.type_dialog(victory_msg)
                         self.cow.print_response(self.cow.name, 'enraged_end')
                         break
                 elif choice == 2:
@@ -129,10 +131,11 @@ class CowInteraction():
                 item_choice = available_items[choice - 1]
                 item_price = item_choice['price']
                 if self.player.cash >= item_price:
-                    self.player.cash -= item_price
+                    self.player.update_cash(-item_price)
                     score = 1 + int(item_choice['price'] // 50)
                     self.game_instance.update_cow_scores(self.cow, score)
                     self.player.update_inventory(item_choice['item'], "add")
+                    self.player.display_info()
                     self.cow.print_response(self.cow.name, 'shop_keeper_purchase', False)
                     if item_choice['item'].type in ['weapon', 'shield']:
                         print(f"You purchased a {item_choice['item'].stats()} for ${item_price}.")
@@ -157,26 +160,21 @@ class CowInteraction():
             min_bet = self.cow.req_amount
             max_bet = min(self.player.cash, self.cow.req_amount * random.randint(2,5))
 
-            while True:
-                try:
-                    bet_amount = float(input(f"How much do you want to bet for the mini-game? (min: ${min_bet}, max: ${max_bet}) "))
-                    if bet_amount < min_bet:
-                        print(f"Come on, don't be stingy! The cow expects at least ${min_bet}.")
-                    elif bet_amount > max_bet:
-                        print(f"You can't bet more than ${max_bet}, that's the cow's limit.")
-                    else:
-                        break
-                except ValueError:
-                    print("Please enter a valid number.\n")
+            actions = {
+                "bet min": f"Bet ${min_bet}",
+                "bet max": f"Bet ${max_bet}"
+            }
 
-            self.player.cash -= bet_amount
+            choice = self.handle_menu_choice(actions, f"How much do you want to bet for the mini-game?")
+            bet_amount = min_bet if choice == "1" else max_bet
+            self.player.update_cash(-bet_amount)
             cow_games_instance = CowGames(self.player, self.cow)
             reward = cow_games_instance.play_random_mini_game(bet_amount)
 
             if reward > bet_amount:
                 win_amount = round(reward - bet_amount, 2)
                 print(f"Congratulations! You won ${win_amount}!")
-                self.player.cash += reward
+                self.player.update_cash(reward)
 
                 if win_amount >= bet_amount * 1.5:
                     score = 2
@@ -190,7 +188,7 @@ class CowInteraction():
 
             else:
                 loss_amount = bet_amount - reward
-                self.player.cash += reward
+                self.player.update_cash(reward)
 
                 if loss_amount >= bet_amount * 0.5:
                     score = -0.5

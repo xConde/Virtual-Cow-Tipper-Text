@@ -27,17 +27,6 @@ class Player:
         else:
             print(f"{item.name} is neither a weapon nor a shield and cannot be equipped.")
 
-    def update_hp(self, amount):
-        self.hp += amount
-        status = "healed" if amount > 0 else "took"
-        print(f"{self.name} {status} {abs(amount)} HP. Current HP: {self.hp}")
-
-    def take_damage(self, amount):
-        self.hp -= amount
-        print(f"{self.name} took {amount} damage. Current HP: {self.hp}")
-        if self.hp <= 0:
-            self.die()
-
     def print_small_damage_context(self, cow_name, total_damage):
         context = random.choice(small_damage_contexts)
         context = context.format(player_name=self.name, cow_name=cow_name, total_damage=total_damage)
@@ -64,26 +53,15 @@ class Player:
             self.print_large_damage_context(cow.name, total_damage)
         else:
             print(f"{self.name} dealt {total_damage} damage to {cow.name}.")
+        self.display_info()
+
+    def update_cash(self, amount):
+        self.cash += amount
+        self.display_info()
 
     def die(self):
         print(f"{self.name} has died.")
         # Logic for handling player death, such as resetting stats, can be added here.
-
-    def buy_item(self, item, cost):
-        if self.cash >= cost:
-            self.cash -= cost
-            self.add_item_to_inventory(item)
-            print(f"{self.name} bought {item.name} for ${cost}. Remaining cash: ${self.cash}")
-        else:
-            print(f"{self.name} does not have enough cash to buy {item.name}. Required: ${cost}, Available: ${self.cash}")
-
-    def sell_item(self, item, value):
-        if item in self.inventory:
-            self.inventory.remove(item)
-            self.cash += value
-            print(f"{self.name} sold {item.name} for ${value}. Current cash: ${self.cash}")
-        else:
-            print(f"{self.name} does not have {item.name} in their inventory to sell.")
 
     def update_inventory(self, item, action):
         if action == "add" and len(self.inventory) < 8:

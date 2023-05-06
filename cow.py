@@ -62,16 +62,6 @@ class Cow:
         self.game_terminal.draw_dialog(self.approach)
         self.game_terminal.refresh()
 
-    def get_cow_type(self):
-        if self.is_aggro:
-            return "aggro"
-        elif self.is_shop:
-            return "shop"
-        elif self.is_dairy:
-            return "dairy"
-        else:
-            return "tip_or_leave"
-
     def print_response(self, cow_name, response_type, gap=True):
         print(f"{cow_name}: {self.get_response(response_type)}" + ('\n' if gap else ''))
         self.game_terminal.draw_dialog(self.get_response(response_type))

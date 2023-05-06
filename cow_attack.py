@@ -1,3 +1,4 @@
+import random
 
 class CowAttack:
     def __init__(self, name, damage=None, effect=None, duration=None, healing=None, accuracy=100):
